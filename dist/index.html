@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101113">
+  <meta name="description" content="JCA & Asociados. Ensayos no destructivos para conocer lo que hay más allá de la superficie. Explorá materiales, inspección y servicios.">
+  <title>JCA & Asociados — Ver más allá</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23101113'/%3E%3Cpath d='M9 8h14v11c0 7-14 7-14 0' fill='none' stroke='%23ef433d' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="./vendor/gsap.min.js"></script>
+  <script defer src="./vendor/ScrollTrigger.min.js"></script>
+</head>
+<body>
+  <a class="skip" href="#services-content">Ir a servicios</a>
+  <main>
+    <div class="story" id="inicio">
+      <div class="stage">
+        <div class="backdrop" aria-hidden="true"></div>
+        <div class="color-panel panel-light" aria-hidden="true"></div>
+        <div class="color-panel panel-red" aria-hidden="true"></div>
+        <header class="header">
+          <a href="#inicio" class="brand" aria-label="JCA & Asociados, inicio"><strong>JCA<span>.</span></strong><span class="brand-name">& ASOCIADOS<br><small>ENSAYOS NO DESTRUCTIVOS</small></span></a>
+          <nav aria-label="Navegación principal">
+            <button type="button" data-jump="0" aria-current="true">Visión</button>
+            <button type="button" data-jump="0.48">Inspección</button>
+            <button type="button" data-jump="0.94">Servicios</button>
+            <a href="#nuestras-soluciones" class="solutions-nav">Soluciones</a>
+          </nav>
+          <button type="button" class="motion-toggle" aria-pressed="false">Reducir movimiento</button>
+        </header>
+        <div class="scene-depth" aria-hidden="true"></div>
+        <div id="scene" aria-hidden="true"></div>
+        <div class="scene-loading" role="status">Preparando la pieza…</div>
+        <div class="floor-label" aria-hidden="true"><span>CADA COMPONENTE.</span><span>Una mirada precisa.</span></div>
+        <section class="chapter chapter-hero" aria-labelledby="hero-title">
+          <div class="chapter-copy hero-copy">
+            <p class="eyebrow"><span></span> PRECISIÓN QUE GENERA CONFIANZA</p>
+            <h1 id="hero-title">Lo que no ves.<br>También <br><span>importa.</span></h1>
+            <p class="intro">Evaluamos materiales, soldaduras y componentes para conocer su estado, sin dañarlos.</p>
+            <button type="button" class="primary" data-jump="0.48">Descubrí cómo</button>
+          </div>
+          <div class="hero-note"><span class="note-rule"></span><span>Pasá el mouse por la pieza<br>y mirá un poco más adentro.</span></div>
+        </section>
+        <section class="chapter chapter-inspect" aria-labelledby="inspect-title" aria-hidden="true" inert>
+          <div class="chapter-copy inspect-copy">
+            <p class="eyebrow">02 / MIRAR MÁS ADENTRO</p>
+            <h2 id="inspect-title">La superficie <br>no cuenta <br><span>todo.</span></h2>
+            <p class="intro">Revelamos discontinuidades para conocer el material y tomar mejores decisiones.</p>
+            <div class="inspect-caption"><span class="red-line"></span><p>Mové el cursor sobre la pieza.<br><strong>Explorá el interior.</strong></p></div>
+          </div>
+        </section>
+        <section class="chapter chapter-services" aria-labelledby="services-title" aria-hidden="true" inert>
+          <div class="chapter-copy services-copy" id="services-content">
+            <p class="eyebrow">03 / EL MÉTODO ADECUADO</p>
+            <h2 id="services-title">Cada material.<br><span>Una respuesta.</span></h2>
+            <div class="services" aria-label="Métodos de inspección">
+              <div class="service is-open" data-method="ultrasound">
+                <h3><button type="button" aria-expanded="true" aria-controls="ultrasound-detail"><span class="service-n">01</span><span>Ultrasonido</span><span class="plus" aria-hidden="true"></span></button></h3>
+                <div class="service-detail" id="ultrasound-detail"><p>Ondas sonoras que permiten detectar discontinuidades internas y medir espesores.</p><span class="service-tag">INSPECCIÓN DEL INTERIOR</span></div>
+              </div>
+              <div class="service" data-method="radiography">
+                <h3><button type="button" aria-expanded="false" aria-controls="radiography-detail"><span class="service-n">02</span><span>Radiografía</span><span class="plus" aria-hidden="true"></span></button></h3>
+                <div class="service-detail" id="radiography-detail" hidden><p>Imágenes del interior para examinar soldaduras y detectar discontinuidades en el material.</p><span class="service-tag">ENSAYOS VOLUMÉTRICOS</span></div>
+              </div>
+              <div class="service" data-method="surface">
+                <h3><button type="button" aria-expanded="false" aria-controls="surface-detail"><span class="service-n">03</span><span>Ensayos superficiales</span><span class="plus" aria-hidden="true"></span></button></h3>
+                <div class="service-detail" id="surface-detail" hidden><p>Líquidos penetrantes y partículas magnéticas para revelar discontinuidades en la superficie, según el material.</p><span class="service-tag">ATENCIÓN AL DETALLE</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div class="inspection-lens" aria-hidden="true"><span class="lens-cross"></span><span class="lens-label">Explorar</span></div>
+        <div class="stage-bottom">
+          <span class="scroll-cue"><span class="scroll-mark" aria-hidden="true"></span><span id="scroll-text">Deslizá para explorar</span></span>
+          <div class="chapter-nav" aria-label="Progreso de la experiencia"><button type="button" data-jump="0" aria-label="Sección 1, presentación" aria-current="true">01</button><span class="progress-track"><i></i></span><button type="button" data-jump="0.48" aria-label="Sección 2, inspección">02</button><span class="progress-track"><i></i></span><button type="button" data-jump="0.94" aria-label="Sección 3, servicios">03</button></div>
+          <span class="bottom-caption">ENSAYOS NO DESTRUCTIVOS</span>
+        </div>
+      </div>
+    </div>
+    <section id="nuestras-soluciones" class="figma-continuation" aria-label="Nuestras soluciones y contenido de JCA">
+      <iframe id="figma-home" title="Nuestras soluciones, industrias, trayectoria y contacto" src="./design/index.html?embedded=1" loading="eager"></iframe>
+    </section>
+  </main>
+  <footer class="footer"><span>JCA & ASOCIADOS</span><span>Ver más allá de la superficie.</span><a href="#inicio">Volver al inicio</a></footer>
+  <noscript><div class="noscript"><h2>Ensayos no destructivos</h2><p>Evaluamos materiales, soldaduras y componentes sin dañarlos. Ultrasonido, radiografía y ensayos superficiales.</p><p>Activá JavaScript para explorar la experiencia animada.</p></div></noscript>
+  <script type="module" src="./app.js"></script>
+  <script defer src="./integration.js"></script>
+</body>
+</html>

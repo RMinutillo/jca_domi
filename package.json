@@ -1,0 +1,1 @@
+{"name":"jca-inspeccion","private":true,"type":"module","scripts":{"dev":"node dev-server.cjs"}}

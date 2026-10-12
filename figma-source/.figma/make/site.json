@@ -1,0 +1,10 @@
+{
+  "description": "Create and customize professional websites effortlessly with user-friendly tools, perfect for businesses and individuals looking to establish an online presence.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
