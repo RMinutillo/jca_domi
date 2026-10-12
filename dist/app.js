@@ -18,7 +18,7 @@ let mobileFraming=null,mobileCopyBottom=[0,0,0],mobileBottom=0;
 let reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let scrollTween=null,method='ultrasound',width=1,height=1,activeChapter=-1;
 let renderer,scene,camera,assembly,ring,grid,crack,texture,pmrem,envMap;
-let animationId=0,previousTime=0,elapsed=0,lastProgress=-1,visible=true;
+let animationId=0,previousTime=0,elapsed=0,lastProgress=-1,visible=true,storyVisible=true;
 let scanUniforms=null;
 let shellRear,shellFront,opening=0;
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
@@ -34,7 +34,7 @@ function setupScroll(){
   if(reduced){stage.dataset.theme='dark';lens.style.opacity=0;chapters.forEach(c=>{c.inert=false;c.setAttribute('aria-hidden','false');});return;}
   if(window.gsap&&window.ScrollTrigger){
     gsap.registerPlugin(ScrollTrigger);
-    scrollTween=gsap.fromTo(state,{progress:0},{progress:1,ease:'none',scrollTrigger:{trigger:story,start:'top top',end:'bottom bottom',scrub:.75,invalidateOnRefresh:true}});
+    scrollTween=gsap.fromTo(state,{progress:0},{progress:1,ease:'none',scrollTrigger:{trigger:story,start:'top top',end:'bottom bottom',scrub:.12,invalidateOnRefresh:true}});
   }
   activeChapter=-1;
 }
@@ -87,6 +87,7 @@ stage.addEventListener('pointerleave',e=>{
   if(e.pointerType!=='touch'&&!lastTouch&&!touchStart)pointer.active=false;
 });
 document.addEventListener('visibilitychange',()=>{visible=!document.hidden;});
+new IntersectionObserver(([entry])=>{storyVisible=entry.isIntersecting;},{rootMargin:'100px 0px'}).observe(story);
 
 function surfaceTexture(){
   const canvas=document.createElement('canvas');canvas.width=512;canvas.height=512;const c=canvas.getContext('2d');
@@ -141,7 +142,7 @@ function buildCrack(){
 const pulses=[];
 function buildScene(){
   try{renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'});}catch{renderer=createSoftwareRenderer(()=>scanUniforms);}
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.setClearColor(0,0);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.96;
+  renderer.setPixelRatio(Math.min(devicePixelRatio,width<=700?1:1.25));renderer.setClearColor(0,0);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.96;
   renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();fallback('La vista 3D no está disponible en este dispositivo.');});
   host.appendChild(renderer.domElement);scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(34,1,.1,100);camera.position.z=9;
   if(!renderer.isSoftware){envMap=studioEnvironment();scene.environment=envMap.texture;}
@@ -180,7 +181,7 @@ function measureMobileLayout(){
   });
   mobileBottom=height-$('.stage-bottom').offsetHeight-12;
 }
-function resize(){width=stage.clientWidth;height=stage.clientHeight;if(!renderer)return;renderer.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix();shared.lensRadius.value=width<=700?52:72;measureMobileLayout();lastProgress=-1;}
+function resize(){width=stage.clientWidth;height=stage.clientHeight;if(!renderer)return;renderer.setPixelRatio(Math.min(devicePixelRatio,width<=700?1:1.25));shared.pixelRatio.value=renderer.getPixelRatio?.()||1;renderer.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix();shared.lensRadius.value=width<=700?52:72;measureMobileLayout();lastProgress=-1;}
 window.addEventListener('resize',()=>{
   const w=width,h=height,p=state.progress;resize();
   if(width!==w||height!==h){
@@ -239,7 +240,7 @@ function updateHover(dt){
 function frame(time){
   animationId=requestAnimationFrame(frame);
   const dt=Math.min((time-previousTime)/1000||.016,.06);previousTime=time;
-  if(!visible||reduced||!renderer)return;
+  if(!visible||reduced||!renderer||!storyVisible)return;
   elapsed+=dt;
   if(!scrollTween)state.progress=mix(state.progress,nativeProgress(),1-Math.exp(-dt*7));
   const p=state.progress,landscape=width>height&&width<=950&&height<=500,phone=width<=700&&!landscape;
