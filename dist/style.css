@@ -105,7 +105,7 @@ body.reduced .scene-depth{display:none}
 body.reduced .services-copy{max-height:none;overflow:visible;padding-right:0}
 
 .figma-continuation{position:relative;background:#f7f8f8;overflow:hidden}
-.figma-continuation iframe{display:block;width:100%;height:2300px;border:0;overflow:hidden}
+.figma-continuation #figma-home{display:block;width:100%}
 .header nav .solutions-nav{color:var(--soft);font:inherit;font-size:11px;text-decoration:none;position:relative}
 .header nav .solutions-nav:hover,.header nav .solutions-nav:focus-visible{color:var(--ink)}
 @media(max-width:700px){.header nav .solutions-nav{display:none}}

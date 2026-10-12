@@ -120,7 +120,7 @@ const methods = [
   },
 ];
 
-function Home({ topic, setTopic, embedded = false }: { topic: string; setTopic: (value: string) => void; embedded?: boolean }) {
+export function Home({ topic, setTopic, embedded = false }: { topic: string; setTopic: (value: string) => void; embedded?: boolean }) {
   const [openMethod, setOpenMethod] = useState<number | null>(null);
   const [sent, setSent] = useState(false);
 
@@ -144,6 +144,7 @@ function Home({ topic, setTopic, embedded = false }: { topic: string; setTopic: 
   }, [embedded]);
 
   useEffect(() => {
+    if (embedded) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const targets = document.querySelectorAll<HTMLElement>(
       [

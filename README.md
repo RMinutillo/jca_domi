@@ -13,6 +13,7 @@ npm run dev
 4. Abrí http://localhost:4173/ en tu navegador.
 
 No hace falta ejecutar npm install: el servidor usa módulos incluidos en Node.js y las librerías del navegador están en dist/vendor.
+El contenido desde «Nuestras soluciones» se monta desde `dist/design/embed.js` dentro del home; no usa un iframe. Para recompilar cambios en `figma-source`, instalá sus dependencias una vez en esa carpeta y ejecutá `npm run build:content` desde la raíz.
 Para usar otro puerto: `npm run dev -- --port 5173`.
 No abras index.html directamente con file://; usá el servidor local.
 

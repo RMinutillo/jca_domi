@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: emitSourcemaps ? 'inline' : false,
       minify: !emitSourcemaps,
+      rollupOptions: { output: { assetFileNames: (asset) => asset.names?.[0]?.endsWith('.css') ? 'assets/site.css' : 'assets/[name]-[hash][extname]' } },
     },
     plugins: [
 react(),

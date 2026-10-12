@@ -1,1 +1,1 @@
-{"name":"jca-inspeccion","private":true,"type":"module","scripts":{"dev":"node dev-server.cjs"}}
+{"name":"jca-inspeccion","private":true,"type":"module","scripts":{"dev":"node dev-server.cjs","build:content":"npm --prefix figma-source run build -- --outDir ../dist/design --emptyOutDir && npm --prefix figma-source run build:embed"}}

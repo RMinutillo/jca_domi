@@ -32,10 +32,7 @@ function setupScroll(){
   motionButton.setAttribute('aria-pressed',String(reduced));
   motionButton.textContent=reduced?'Activar movimiento':'Reducir movimiento';
   if(reduced){stage.dataset.theme='dark';lens.style.opacity=0;chapters.forEach(c=>{c.inert=false;c.setAttribute('aria-hidden','false');});return;}
-  if(window.gsap&&window.ScrollTrigger){
-    gsap.registerPlugin(ScrollTrigger);
-    scrollTween=gsap.fromTo(state,{progress:0},{progress:1,ease:'none',scrollTrigger:{trigger:story,start:'top top',end:'bottom bottom',scrub:.12,invalidateOnRefresh:true}});
-  }
+  state.progress=nativeProgress();
   activeChapter=-1;
 }
 motionButton.addEventListener('click',()=>{const p=state.progress;reduced=!reduced;setupScroll();resize();if(!reduced){window.scrollTo(0,p*(story.offsetHeight-stage.offsetHeight));} });
@@ -242,7 +239,7 @@ function frame(time){
   const dt=Math.min((time-previousTime)/1000||.016,.06);previousTime=time;
   if(!visible||reduced||!renderer||!storyVisible)return;
   elapsed+=dt;
-  if(!scrollTween)state.progress=mix(state.progress,nativeProgress(),1-Math.exp(-dt*7));
+  state.progress=nativeProgress();
   const p=state.progress,landscape=width>height&&width<=950&&height<=500,phone=width<=700&&!landscape;
   if(Math.abs(p-lastProgress)>.00001){updateUI(p);lastProgress=p;}
   smoothedPointer.x=mix(smoothedPointer.x,pointer.x,1-Math.exp(-dt*5));smoothedPointer.y=mix(smoothedPointer.y,pointer.y,1-Math.exp(-dt*5));
