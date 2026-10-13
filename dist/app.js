@@ -13,7 +13,7 @@ const motionButton=$('.motion-toggle');
 const state={progress:0},pointer={x:0,y:0,px:-1000,py:-1000,active:false},smoothedPointer={x:0,y:0};
 const lens=$('.inspection-lens'),raycaster=new THREE.Raycaster(),rayPoint=new THREE.Vector2();
 const pieces=[],pickMeshes=[],shared={lensCenter:{value:new THREE.Vector2(-1000,-1000)},lensRadius:{value:72},pixelRatio:{value:1},gridColor:{value:new THREE.Vector3(.7,.8,.88)}};
-let hovered=null,lastTouch=0,touchStart=null;
+let hovered=null,lastTouch=0,touchStart=null,lastScrollTime=-Infinity;
 let mobileFraming=null,mobileCopyBottom=[0,0,0],mobileBottom=0;
 let reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let method='ultrasound',width=1,height=1,activeChapter=-1;
@@ -26,6 +26,16 @@ let shellRear,shellFront,opening=0;
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 const smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a));return t*t*(3-2*t);};
 const mix=(a,b,t)=>a+(b-a)*t;
+
+function shownProgress(current,target,dt){
+  const rate=12+Math.min(12,Math.abs(target-current)*40);
+  const next=mix(current,target,1-Math.exp(-dt*rate));
+  // Keep the existing damping; only protect the short 2→3 segment from skipped frames.
+  const step=Math.min(.025,dt*1.2);
+  if(next>current&&current<.86&&next>.64)return Math.min(next,Math.max(current,.64)+step);
+  if(next<current&&current>.64&&next<.86)return Math.max(next,Math.min(current,.86)-step);
+  return next;
+}
 
 function measureScroll(){scrollStart=story.offsetTop;scrollRange=Math.max(1,story.offsetHeight-stage.offsetHeight);}
 function nativeProgress(){return clamp((scrollY-scrollStart)/scrollRange);}
@@ -51,7 +61,7 @@ function chooseMethod(button){
 }
 document.querySelectorAll('.service button').forEach(button=>{
   button.addEventListener('click',()=>chooseMethod(button));
-  button.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch'&&!reduced&&width>700&&state.progress>.87)chooseMethod(button);});
+  button.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch'&&!reduced&&width>700&&state.progress>.87&&performance.now()-lastScrollTime>150&&Math.abs(nativeProgress()-state.progress)<.002)chooseMethod(button);});
   button.addEventListener('focus',()=>chooseMethod(button));
 });
 function trackPointer(e){
@@ -81,7 +91,7 @@ window.addEventListener('pointerup',e=>{
   lastTouch=performance.now();touchStart=null;
 },{passive:true});
 window.addEventListener('pointercancel',cancelTouchInspection,{passive:true});
-window.addEventListener('scroll',cancelTouchInspection,{passive:true});
+window.addEventListener('scroll',()=>{lastScrollTime=performance.now();cancelTouchInspection();},{passive:true});
 window.addEventListener('blur',()=>{cancelTouchInspection();pointer.active=false;pointer.x=pointer.y=0;});
 stage.addEventListener('pointerleave',e=>{
   // Touch devices emit pointerleave after lifting the finger. Keep the aperture pinned.
@@ -240,8 +250,8 @@ function frame(time){
   const dt=Math.min((time-previousTime)/1000||.016,.06);previousTime=time;
   if(!visible||reduced||!renderer||!storyVisible)return;
   elapsed+=dt;
-  const target=nativeProgress(),rate=12+Math.min(12,Math.abs(target-state.progress)*40);
-  state.progress=mix(state.progress,target,1-Math.exp(-dt*rate));
+  const target=nativeProgress();
+  state.progress=shownProgress(state.progress,target,dt);
   if(Math.abs(target-state.progress)<.00005)state.progress=target;
   // Change resolution infrequently; isolated slow frames do not trigger resizing.
   frameAverage=mix(frameAverage,dt*1000,.04);
@@ -262,7 +272,7 @@ function frame(time){
   assemblyPosition.set((common[0]-.5)*worldWidth,(.5-common[1])*worldHeight+Math.sin(elapsed*.65)*.012,0);
   assemblyQuaternion.setFromEuler(targetEuler.set(common[3]+smoothedPointer.y*.10,common[4]+smoothedPointer.x*.13,common[5]));
   const perspective=introPerspective(p);
-  introQuaternion.setFromAxisAngle(introAxis,THREE.MathUtils.degToRad(27)*perspective);
+  introQuaternion.setFromAxisAngle(introAxis,THREE.MathUtils.degToRad(phone?31:33)*perspective);
   assemblyQuaternion.premultiply(introQuaternion);
   // A small orbit preserves the framing; use the existing camera exactly after the intro.
   camera.position.x=(phone?.10:.18)*perspective;
@@ -291,7 +301,7 @@ function frame(time){
   });
   if(mobileFraming&&(phone||landscape)){
     const top=phone?mix(mix(mobileCopyBottom[0],mobileCopyBottom[1],a),mobileCopyBottom[2],b):$('.header').offsetHeight+10;
-    mobileFraming(camera,width,height,{top,bottom:mobileBottom},shellOpening);
+    mobileFraming(camera,width,height,{top,bottom:mobileBottom,softReserve:smooth(.64,.68,p)*(1-smooth(.82,.86,p))},shellOpening);
   }
   pieces.forEach((piece,i)=>{
     // Shadows follow the actual component centres, including the opening.

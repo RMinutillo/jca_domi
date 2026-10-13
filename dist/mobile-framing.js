@@ -5,7 +5,7 @@ import * as THREE from './vendor/three.module.js';
 export function createMobileFraming(pieces){
   const bounds=pieces.map(piece=>new THREE.Box3().setFromObject(piece.group));
   const point=new THREE.Vector3(),box=new THREE.Box3();
-  return function fit(camera,width,height,{top,bottom,left=14,right=width-14},shellOpening){
+  return function fit(camera,width,height,{top,bottom,left=14,right=width-14,softReserve=0},shellOpening){
     for(let pass=0;pass<2;pass++){
       let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
       pieces.forEach((piece,i)=>{
@@ -19,7 +19,10 @@ export function createMobileFraming(pieces){
       });
       const spanX=x1-x0,spanY=y1-y0;
       let factor=Math.min(1,(right-left)/spanX,Math.max(1,bottom-top)/spanY);
-      if(factor<1)factor*=.985;
+      // Soften the fit threshold inside 2→3; retain the exact original static framing.
+      const edge=Math.min(1,(1-factor)/.08);
+      const reserve=(factor<1?1:0)*(1-softReserve)+edge*edge*(3-2*edge)*softReserve;
+      factor*=1-.015*reserve;
       const cx=(x0+x1)/2,cy=(y0+y1)/2;
       const nx=Math.max(left+spanX*factor/2,Math.min(right-spanX*factor/2,cx));
       const ny=Math.max(top+spanY*factor/2,Math.min(bottom-spanY*factor/2,cy));

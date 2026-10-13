@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
+import { createPortal } from "react-dom";
 import { Home } from "./App";
+import { FloatingActions } from "./shared";
 
 const host = document.getElementById("figma-home");
 
@@ -18,7 +20,7 @@ if (host) {
 
   function EmbeddedHome() {
     const [topic, setTopic] = useState(() => sessionStorage.getItem("jca-consult-topic") ?? "");
-    return <Home topic={topic} setTopic={setTopic} embedded />;
+    return <><Home topic={topic} setTopic={setTopic} embedded />{createPortal(<FloatingActions whatsappOnly />, document.body)}</>;
   }
 
   createRoot(root).render(<EmbeddedHome />);

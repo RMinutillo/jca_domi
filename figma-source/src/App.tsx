@@ -316,7 +316,7 @@ export function Home({ topic, setTopic, embedded = false }: { topic: string; set
         </div>
       </section>
 
-      <section className="dark-section industries">
+      <section className="dark-section industries" id="industrias">
         <div className="industries-bg" aria-hidden="true">
           <img src={industriesBg} alt="" />
         </div>
