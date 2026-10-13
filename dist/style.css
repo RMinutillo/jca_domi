@@ -108,4 +108,9 @@ body.reduced .services-copy{max-height:none;overflow:visible;padding-right:0}
 .figma-continuation #figma-home{display:block;width:100%}
 .header nav .solutions-nav{color:var(--soft);font:inherit;font-size:11px;text-decoration:none;position:relative}
 .header nav .solutions-nav:hover,.header nav .solutions-nav:focus-visible{color:var(--ink)}
+body:not(.reduced) .story{height:calc(max(100svh,640px) + 2400px)}
+.piece-shadow{left:0;top:0;width:100px;height:32px;will-change:transform;transform-origin:0 0}
+@media(max-height:730px) and (min-width:701px){body:not(.reduced) .story{height:calc(max(100svh,620px) + 2400px)}}
+@media(max-width:700px){body:not(.reduced) .story{height:calc(100svh + 1850px)}}
+@media(min-width:501px) and (max-width:950px) and (max-height:500px) and (orientation:landscape){body:not(.reduced) .story{height:calc(100svh + 1800px)}}
 @media(max-width:700px){.header nav .solutions-nav{display:none}}
