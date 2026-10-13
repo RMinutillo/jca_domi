@@ -287,13 +287,16 @@ function frame(time){
   // Shared local parent rotation: X-axis split offsets stay on their original paths.
   rollQuaternion.setFromAxisAngle(rollAxis,rollAngle*longitudinalRoll(p));
   assemblyQuaternion.multiply(rollQuaternion);
-  // Subtle tracking and approach, then dolly back to the original arrival framing.
-  const cameraTravel=smooth(.13,.23,p)*(1-smooth(.23,.39,p));
-  const cameraFollow=assemblyPosition.y*(phone?.08:.12)*cameraTravel;
-  camera.position.x=(phone?.10:.18)*perspective;
-  camera.position.y=cameraFollow;
-  camera.position.z=9-((phone||landscape)?.16:.35)*cameraTravel;
-  camera.lookAt(0,cameraFollow,0);
+  // Hold a close tracking shot, then open the framing during the final descent.
+  // Translation is camera-only: all model poses and the final camera remain intact.
+  const cameraTravel=smooth(.13,.21,p)*(1-smooth(.27,.39,p));
+  const cameraDistance=9-((phone||landscape)?.85:1.65)*cameraTravel;
+  const trackingWeight=(9-cameraDistance)/9;
+  const revealPan=(phone||landscape)?0:worldWidth*.15*smooth(.22,.27,p)*(1-smooth(.27,.39,p));
+  const trackingX=assemblyPosition.x*trackingWeight+revealPan;
+  const trackingY=assemblyPosition.y*trackingWeight;
+  camera.position.set((phone?.10:.18)*perspective+trackingX,trackingY,cameraDistance);
+  camera.lookAt(trackingX,trackingY,0);
   camera.updateMatrixWorld();
   opening=smooth(.17,.48,p);
   const shellOpening=opening*(1-b*.55);
@@ -331,7 +334,11 @@ function frame(time){
     piece.shadow.style.transform=`translate(${shadowX}px,${shadowY}px) rotate(${i===0?-piece.shadowRotation*24:0}deg) scale(${shadowWidth/(width*.3)}) translate(-50%,-50%)`;
   });
 
-  scene.updateMatrixWorld();camera.updateMatrixWorld();for(const piece of pieces)piece.u.inspectionMatrix.value.copy(piece.group.matrixWorld).invert();updateHover(dt);
+  // Inspection uniforms need only root matrices; child transforms are updated by
+  // the renderer. Ray picking alone requires the full hierarchy before rendering.
+  if(pointer.active)scene.updateMatrixWorld();
+  else for(const piece of pieces)piece.group.updateWorldMatrix(true,false);
+  for(const piece of pieces)piece.u.inspectionMatrix.value.copy(piece.group.matrixWorld).invert();updateHover(dt);
   const inspection=smooth(.29,.40,p)*(1-smooth(.62,.73,p)),service=smooth(.77,.89,p);
   let scanX=mix(-2.4,2.4,smooth(.34,.62,p));
   if(service>.01)scanX=mix(scanX,0,service);

@@ -5,14 +5,18 @@ import * as THREE from './vendor/three.module.js';
 export function createMobileFraming(pieces){
   const bounds=pieces.map(piece=>new THREE.Box3().setFromObject(piece.group));
   const point=new THREE.Vector3(),box=new THREE.Box3();
+  const viewProjection=new THREE.Matrix4(),projector=new THREE.Matrix4();
   return function fit(camera,width,height,{top,bottom,left=14,right=width-14,softReserve=0},shellOpening){
+    // Combine the three projection transforms once, not for every box corner.
+    viewProjection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);
     for(let pass=0;pass<2;pass++){
       let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
       pieces.forEach((piece,i)=>{
         piece.group.updateWorldMatrix(true,false);box.copy(bounds[i]);
+        projector.multiplyMatrices(viewProjection,piece.group.matrixWorld);
         if(i===0){box.min.x-=.78*shellOpening;box.max.x+=1.05*shellOpening;}
         for(let c=0;c<8;c++){
-          point.set(c&1?box.max.x:box.min.x,c&2?box.max.y:box.min.y,c&4?box.max.z:box.min.z).applyMatrix4(piece.group.matrixWorld).project(camera);
+          point.set(c&1?box.max.x:box.min.x,c&2?box.max.y:box.min.y,c&4?box.max.z:box.min.z).applyMatrix4(projector);
           const x=(point.x*.5+.5)*width,y=(.5-point.y*.5)*height;
           x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);
         }
