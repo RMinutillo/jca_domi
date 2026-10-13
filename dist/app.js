@@ -276,6 +276,8 @@ function frame(time){
   if(dx!==lightX){stage.style.setProperty('--light-dx',`${dx}px`);lightX=dx;}
   if(dy!==lightY){stage.style.setProperty('--light-dy',`${dy}px`);lightY=dy;}
   const a=smooth(.13,.39,p),b=smooth(.64,.86,p);
+  // Service-only choreography: exact zero at both existing compositions.
+  const serviceArc=4*b*(1-b),serviceTurn=b*(2-b);
   const worldHeight=2*Math.tan(THREE.MathUtils.degToRad(17))*9,worldWidth=worldHeight*width/height;
   const config=phone?assemblyPoses.phone:assemblyPoses.desktop,selectedIndex=pieces.findIndex(piece=>piece.key===method);
   const common=config[0].map((v,i)=>mix(v,config[1][i],a)),commonScale=worldWidth*common[2];
@@ -297,6 +299,19 @@ function frame(time){
   const trackingY=assemblyPosition.y*trackingWeight;
   camera.position.set((phone?.10:.18)*perspective+trackingX,trackingY,cameraDistance);
   camera.lookAt(trackingX,trackingY,0);
+  if(b>0&&b<1){
+    // A single curved orbit, not a retraced lateral pan: the outgoing and
+    // incoming portions have different depths. Endpoints retain the exact camera.
+    const compact=phone||landscape;
+    const orbitPhase=Math.PI*b,orbitEnvelope=Math.sin(orbitPhase);
+    const orbitYaw=THREE.MathUtils.degToRad(compact?22.1:33.8)*orbitEnvelope;
+    const orbitDepth=(compact?.585:1.43)*Math.sin(2*orbitPhase)*orbitEnvelope;
+    const orbitSin=Math.sin(orbitYaw),orbitCos=Math.cos(orbitYaw);
+    const pivotX=assemblyPosition.x;
+    const orbitTargetX=pivotX*(1-orbitCos),orbitTargetZ=pivotX*orbitSin;
+    camera.position.set(orbitTargetX+(9+orbitDepth)*orbitSin,0,orbitTargetZ+(9+orbitDepth)*orbitCos);
+    camera.lookAt(orbitTargetX,0,orbitTargetZ);
+  }
   camera.updateMatrixWorld();
   opening=smooth(.17,.48,p);
   const shellOpening=opening*(1-b*.55);
@@ -312,11 +327,17 @@ function frame(time){
     localPosition.set(localX,0,0).multiplyScalar(commonScale).applyQuaternion(assemblyQuaternion).add(assemblyPosition);
     finalPosition.set((finalPose[0]-.5)*worldWidth,(.5-finalPose[1])*worldHeight,piece.hover*.1);
     piece.group.position.copy(localPosition).lerp(finalPosition,b);
-    piece.group.scale.setScalar(mix(commonScale,worldWidth*finalPose[2]*(1+piece.hover*.035),b));
+    // Open the fan in depth while retaining the original endpoints and ordering.
+    piece.group.position.x+=(i===0?0:i===1?-1:1)*worldWidth*((phone||landscape)?.015:.01)*serviceArc;
+    piece.group.position.y+=(i===0?-.025:.035)*worldHeight*serviceArc;
+    piece.group.position.z+=(i===0?.45:i===1?-.45:.65)*((phone||landscape)?.5:1)*serviceArc;
+    // Keep the side components legible until the composition starts settling.
+    piece.group.scale.setScalar(mix(commonScale,worldWidth*finalPose[2]*(1+piece.hover*.035),i===0?b:b*b));
     localQuaternion.setFromEuler(targetEuler.set(0,i===0?0:i===1?-Math.PI/2:Math.PI/2-opening*.18,0));
     piece.group.quaternion.copy(assemblyQuaternion).multiply(localQuaternion);
     targetQuaternion.setFromEuler(targetEuler.set(finalPose[3]+smoothedPointer.y*.14,finalPose[4]+smoothedPointer.x*.18,finalPose[5]));
-    piece.group.quaternion.slerp(targetQuaternion,b);
+    // Advance along the original shortest rotation, never overshoot or rewind.
+    piece.group.quaternion.slerp(targetQuaternion,serviceTurn);
     piece.shadowRotation=mix(common[5],finalPose[5],b);
   });
   if(mobileFraming&&(phone||landscape)){
