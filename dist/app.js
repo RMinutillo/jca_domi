@@ -29,8 +29,12 @@ const mix=(a,b,t)=>a+(b-a)*t;
 
 function shownProgress(current,target,dt){
   const rate=12+Math.min(12,Math.abs(target-current)*40);
-  const next=mix(current,target,1-Math.exp(-dt*rate));
-  // Keep the existing damping; only protect the short 2→3 segment from skipped frames.
+  let next=mix(current,target,1-Math.exp(-dt*rate));
+  // Protect the visible roll from being skipped on a large wheel/touch update.
+  const rollStep=Math.min(.008,dt*.48);
+  if(next>current&&current<.39&&next>.13)next=Math.min(next,Math.max(current,.13)+rollStep);
+  if(next<current&&current>.13&&next<.39)next=Math.max(next,Math.min(current,.39)-rollStep);
+  // Keep the existing protection for the short 2→3 segment.
   const step=Math.min(.025,dt*1.2);
   if(next>current&&current<.86&&next>.64)return Math.min(next,Math.max(current,.64)+step);
   if(next<current&&current>.64&&next<.86)return Math.max(next,Math.min(current,.86)-step);
@@ -227,6 +231,12 @@ const assemblyPoses={
 const assemblyPosition=new THREE.Vector3(),assemblyQuaternion=new THREE.Quaternion(),localQuaternion=new THREE.Quaternion(),targetQuaternion=new THREE.Quaternion(),targetEuler=new THREE.Euler(),localPosition=new THREE.Vector3(),finalPosition=new THREE.Vector3();
 // Additive intro perspective: zero at both endpoints, outside the despiece transforms.
 const introAxis=new THREE.Vector3(0,1,0),introQuaternion=new THREE.Quaternion();
+const rollAxis=new THREE.Vector3(1,0,0),rollQuaternion=new THREE.Quaternion();
+const rollAngle=Math.PI*2;
+function longitudinalRoll(p){
+  // One forward revolution; the endpoint restores orientation without rewinding.
+  return smooth(.13,.39,p);
+}
 function introPerspective(p){
   if(p<=0||p>=.48)return 0;
   const t=p/.48;
@@ -274,9 +284,16 @@ function frame(time){
   const perspective=introPerspective(p);
   introQuaternion.setFromAxisAngle(introAxis,THREE.MathUtils.degToRad(phone?31:33)*perspective);
   assemblyQuaternion.premultiply(introQuaternion);
-  // A small orbit preserves the framing; use the existing camera exactly after the intro.
+  // Shared local parent rotation: X-axis split offsets stay on their original paths.
+  rollQuaternion.setFromAxisAngle(rollAxis,rollAngle*longitudinalRoll(p));
+  assemblyQuaternion.multiply(rollQuaternion);
+  // Subtle tracking and approach, then dolly back to the original arrival framing.
+  const cameraTravel=smooth(.13,.23,p)*(1-smooth(.23,.39,p));
+  const cameraFollow=assemblyPosition.y*(phone?.08:.12)*cameraTravel;
   camera.position.x=(phone?.10:.18)*perspective;
-  camera.lookAt(0,0,0);
+  camera.position.y=cameraFollow;
+  camera.position.z=9-((phone||landscape)?.16:.35)*cameraTravel;
+  camera.lookAt(0,cameraFollow,0);
   camera.updateMatrixWorld();
   opening=smooth(.17,.48,p);
   const shellOpening=opening*(1-b*.55);
@@ -301,7 +318,8 @@ function frame(time){
   });
   if(mobileFraming&&(phone||landscape)){
     const top=phone?mix(mix(mobileCopyBottom[0],mobileCopyBottom[1],a),mobileCopyBottom[2],b):$('.header').offsetHeight+10;
-    mobileFraming(camera,width,height,{top,bottom:mobileBottom,softReserve:smooth(.64,.68,p)*(1-smooth(.82,.86,p))},shellOpening);
+    const softReserve=Math.max(smooth(.13,.17,p)*(1-smooth(.35,.39,p)),smooth(.64,.68,p)*(1-smooth(.82,.86,p)));
+    mobileFraming(camera,width,height,{top,bottom:mobileBottom,softReserve},shellOpening);
   }
   pieces.forEach((piece,i)=>{
     // Shadows follow the actual component centres, including the opening.
