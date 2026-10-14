@@ -1,4 +1,4 @@
-import { FormEvent, ReactNode, useEffect, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { Footer, Header, FloatingActions, useRoute } from "./shared";
 import NdtPage from "./NdtPage";
 import ComplementaryPage from "./ComplementaryPage";
@@ -121,6 +121,35 @@ const methods = [
 ];
 
 export function Home({ topic, setTopic, embedded = false }: { topic: string; setTopic: (value: string) => void; embedded?: boolean }) {
+  const solutionsCopy = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const copy = solutionsCopy.current;
+    if (!copy) return;
+    const heading = copy.querySelector("h2")!;
+    const indicator = copy.querySelector<SVGElement>(".solution-indicator")!;
+    let disposed = false;
+    const rightEdge = (element: Element) => {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      return Math.max(...Array.from(range.getClientRects(), rect => rect.right));
+    };
+    const align = () => {
+      if (disposed) return;
+      const rect = indicator.getBoundingClientRect();
+      const currentOffset = parseFloat(getComputedStyle(indicator).left) || 0;
+      const originalCenter = rect.left + rect.width / 2 - currentOffset;
+      const textRight = Math.max(...Array.from(copy.querySelectorAll(".solution-item b,.solution-item small"), rightEdge));
+      const target = Math.min(originalCenter, Math.max(rightEdge(heading), textRight + 18));
+      copy.style.setProperty("--solution-indicator-shift", `${target - originalCenter}px`);
+    };
+    const observer = new ResizeObserver(align);
+    observer.observe(copy);
+    observer.observe(heading);
+    document.fonts.ready.then(align);
+    document.fonts.addEventListener("loadingdone", align);
+    align();
+    return () => { disposed = true; observer.disconnect(); document.fonts.removeEventListener("loadingdone", align); };
+  }, []);
   const [openMethod, setOpenMethod] = useState<number | null>(null);
   const [sent, setSent] = useState(false);
 
@@ -287,7 +316,7 @@ export function Home({ topic, setTopic, embedded = false }: { topic: string; set
           <img src={solutionsBg} alt="" />
         </div>
         <div className="page-width solutions-inner">
-          <div className="copy solutions-copy">
+          <div className="copy solutions-copy" ref={solutionsCopy}>
             <p className="eyebrow red">Nuestras soluciones</p>
             <h2>
               <em>Soluciones</em> para cada
@@ -308,7 +337,9 @@ export function Home({ topic, setTopic, embedded = false }: { topic: string; set
                     <b>{solution.title}</b>
                     <small>{solution.text}</small>
                   </span>
-                  <i aria-hidden="true" />
+                  <svg className="solution-indicator" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="m6 3 5 5-5 5" />
+                  </svg>
                 </a>
               ))}
             </div>
@@ -446,7 +477,7 @@ export function Home({ topic, setTopic, embedded = false }: { topic: string; set
         </div>
       </section>
 
-      {!embedded && <Footer />}
+      <Footer />
     </main>
   );
 }

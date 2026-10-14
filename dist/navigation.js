@@ -11,7 +11,7 @@ new IntersectionObserver(([entry])=>document.body.classList.toggle('story-contro
 window.addEventListener('load',()=>{
   const preference=matchMedia('(prefers-reduced-motion: reduce)');
   preference.addEventListener('change',event=>{
-    const control=document.querySelector('.footer .motion-toggle');
+    const control=document.querySelector('.motion-toggle');
     if(control&&!control.hidden&&document.body.classList.contains('reduced')!==event.matches)control.click();
   });
 });

@@ -6,9 +6,12 @@
   <meta name="theme-color" content="#101113">
   <meta name="description" content="JCA & Asociados. Ensayos no destructivos para conocer lo que hay más allá de la superficie. Explorá materiales, inspección y servicios.">
   <title>JCA & Asociados — Ver más allá</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23101113'/%3E%3Cpath d='M9 8h14v11c0 7-14 7-14 0' fill='none' stroke='%23ef433d' stroke-width='4'/%3E%3C/svg%3E">
+  <script src="./home-entry.js"></script>
+  <link rel="icon" type="image/png" sizes="100x100" href="./favicon.png">
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./controls.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600&amp;family=Inter:wght@300;400;500;600&amp;display=swap">
+  <link rel="stylesheet" href="./typography.css">
 </head>
 <body>
   <a class="skip" href="#services-content">Ir a servicios</a>
@@ -19,7 +22,7 @@
         <div class="color-panel panel-light" aria-hidden="true"></div>
         <div class="color-panel panel-red" aria-hidden="true"></div>
         <header class="header">
-          <a href="#inicio" class="brand" aria-label="JCA & Asociados, inicio"><strong>JCA<span>.</span></strong><span class="brand-name">& ASOCIADOS<br><small>ENSAYOS NO DESTRUCTIVOS</small></span></a>
+          <a href="#inicio" class="brand" aria-label="JCA & Asociados, inicio"><span class="brand-logo" aria-hidden="true"><img class="brand-logo-white" src="./assets/logo-jca-white.png" width="368" height="181" alt=""><img class="brand-logo-black" src="./assets/logo-jca-black.png" width="374" height="187" alt=""></span></a>
           <button type="button" class="menu-button" aria-label="Abrir menú" aria-controls="home-navigation" aria-expanded="false"><i></i><i></i></button>
           <nav id="home-navigation" aria-label="Navegación principal">
             <a href="#jca">JCA</a>
@@ -82,7 +85,7 @@
       <div id="figma-home"></div>
     </section>
   </main>
-  <footer class="footer"><span>JCA & ASOCIADOS</span><span>Ver más allá de la superficie.</span><a href="#inicio">Volver al inicio</a><button type="button" class="motion-toggle" aria-pressed="false">Reducir movimiento</button></footer>
+  <div hidden><button type="button" class="motion-toggle" aria-pressed="false">Reducir movimiento</button></div>
   <noscript><div class="noscript"><h2>Ensayos no destructivos</h2><p>Evaluamos materiales, soldaduras y componentes sin dañarlos. Ultrasonido, radiografía y ensayos superficiales.</p><p>Activá JavaScript para explorar la experiencia animada.</p></div></noscript>
   <script type="module" src="./app.js"></script>
   <script type="module" src="./design/embed.js"></script>

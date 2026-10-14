@@ -1,7 +1,10 @@
 {
   "description": "Create and customize professional websites effortlessly with user-friendly tools, perfect for businesses and individuals looking to establish an online presence.",
+  "icons": {
+    "icon": "/favicon.png"
+  },
   "robots": {
-    "index": false
+    "index": true
   },
   "accessibility": {
     "addBypassLinks": false,

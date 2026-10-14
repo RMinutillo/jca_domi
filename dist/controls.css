@@ -1,4 +1,17 @@
 /* Shared controls: used by the 3D home and the isolated Figma content. */
+/* Frame only the nontransparent bounds; the supplied PNG files remain untouched. */
+.brand-logo{position:relative;display:block;flex-shrink:0;width:220px;aspect-ratio:292/100;overflow:hidden}
+.brand-logo img{position:absolute;display:block;max-width:none;height:auto;pointer-events:none}
+.brand-logo .brand-logo-white{width:126.027397%;left:-13.356164%;top:-41%}
+.brand-logo .brand-logo-black{width:128.082192%;left:-14.383562%;top:-44%;visibility:hidden}
+.stage[data-theme=light] .brand-logo-white{visibility:hidden}
+.stage[data-theme=light] .brand-logo-black{visibility:visible}
+.brand:focus-visible{outline:2px solid currentColor;outline-offset:4px}
+.header .brand-logo,.site-header .brand-logo{width:190px}
+@media(max-width:900px){.header .brand-logo,.site-header .brand-logo{width:164px}}
+@media(max-width:560px){.header .brand-logo,.site-header .brand-logo{width:122px}}
+@media(max-width:380px){.header .brand-logo,.site-header .brand-logo{width:102px}}
+
 .btn,.primary,.motion-toggle,.menu-button {
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   min-height:44px;padding:0 22px;border:1px solid transparent;border-radius:3px;
@@ -48,11 +61,8 @@
 .service button:active,.acc-item button:active{background:rgba(128,128,128,.12)}
 a.solution-item{border-radius:0;border:0;border-bottom:1px solid var(--line);margin-bottom:0;padding:18px 0;grid-template-columns:minmax(0,1fr) 24px;transition:color 160ms ease;box-shadow:none}
 a.solution-item:hover,a.solution-item:active{padding:18px 0;background:transparent;box-shadow:none;transform:none;border:0;border-bottom:1px solid var(--line)}
-a.solution-item i{display:grid;place-items:center;width:24px;height:24px;border:0;border-radius:0;font-style:normal;color:var(--red);background:none;transition:color 160ms ease,transform 160ms ease}
-a.solution-item i::before{content:'\2192';position:static;width:auto;height:auto;background:none;font-size:20px;line-height:1;transform:none}
-a.solution-item:hover i::before{width:auto}
-a.solution-item i::after{display:none}
-a.solution-item:hover i{color:var(--red);background:none;border:0;transform:translateX(3px)}
+a.solution-item .solution-indicator{display:block;justify-self:center;position:relative;left:var(--solution-indicator-shift,0px);width:16px;height:16px;color:#747a7e;transition:color 160ms ease}
+a.solution-item:hover .solution-indicator,a.solution-item:focus-visible .solution-indicator{color:var(--red)}
 .whatsapp,.back-top{border-radius:3px}
 .whatsapp{position:fixed;right:max(20px,env(safe-area-inset-right));bottom:calc(20px + env(safe-area-inset-bottom));z-index:50;display:grid;place-items:center;width:48px;height:48px;color:#fff;background:#189b4b;border:1px solid #ffffff30;box-shadow:0 2px 8px #0002;transition:background-color 160ms ease}
 .whatsapp:hover,.whatsapp:active{transform:none;background:#168b43}
@@ -88,8 +98,7 @@ a.solution-item:hover i{color:var(--red);background:none;border:0;transform:tran
 @media(prefers-reduced-motion:reduce){
   .btn,.primary,.motion-toggle,.menu-button,a.solution-item,.header nav a,.site-header .nav a{transition:none}
   .btn:hover,.primary:hover,.motion-toggle:hover,.menu-button:hover,.btn:active,.primary:active,a.solution-item:hover{transform:none}
-  a.solution-item i{transition:none}
-  a.solution-item:hover i{transform:none}
+  a.solution-item .solution-indicator{transition:none}
 }
 body.reduced .chapter{padding-left:var(--home-content-left);padding-right:var(--home-content-left)}
 @media(max-width:380px){

@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap");
 @import "tailwindcss";
+@import "../../dist/typography.css";
 
 :root {
   --red: #ef1825;
@@ -99,7 +100,7 @@ h1 {
 }
 
 h2 {
-  font-size: clamp(41px, 3.8vw, 58px);
+  font-size: var(--jca-section-title-size);
 }
 
 h1 em,
@@ -114,7 +115,7 @@ h2 em {
 }
 
 .lead {
-  font-size: 15px;
+  font-size: var(--jca-lead-size);
   line-height: 1.55;
   max-width: 510px;
   color: var(--muted);
@@ -447,20 +448,12 @@ h2 em {
   height: 100%;
   object-fit: cover;
   object-position: 45% center;
-}
-
-.solutions-bg::after {
-  position: absolute;
-  inset: 0;
-  content: "";
-  background: linear-gradient(
-    90deg,
-    #f4f5f5 0%,
-    rgba(244, 245, 245, 0.92) 10%,
-    rgba(244, 245, 245, 0.6) 22%,
-    rgba(244, 245, 245, 0.2) 36%,
-    transparent 50%
-  );
+  /* Reveal the section's actual background, rather than overlaying another white. */
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.015) 10%,
+    rgba(0,0,0,.08) 20%, rgba(0,0,0,.28) 32%, rgba(0,0,0,.58) 44%,
+    rgba(0,0,0,.84) 56%, rgba(0,0,0,.97) 68%, #000 80%, #000 100%),
+    linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  mask-composite: intersect;
 }
 
 .solutions-inner {
@@ -511,7 +504,7 @@ h2 em {
   max-width: 300px;
   margin-top: 5px;
   color: #747a7e;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.35;
 }
 
@@ -547,12 +540,12 @@ h2 em {
 }
 
 .experience-grid .copy h2 {
-  font-size: clamp(41px, 3.7vw, 56px);
+  font-size: var(--jca-section-title-size);
 }
 
 .experience-grid .copy .lead {
   margin: 25px 0;
-  font-size: 12px;
+  font-size: var(--jca-lead-size);
 }
 
 .light-outline {
@@ -615,7 +608,7 @@ h2 em {
 .contact-copy .lead {
   max-width: 430px;
   margin: 25px 0;
-  font-size: 13px;
+  font-size: var(--jca-lead-size);
 }
 
 .contact-details {
@@ -977,11 +970,11 @@ footer {
   }
 
   h2 {
-    font-size: 41px;
+    font-size: var(--jca-section-title-size);
   }
 
   .lead {
-    font-size: 13px;
+    font-size: var(--jca-lead-size);
   }
 
 
@@ -1112,20 +1105,20 @@ footer {
 }
 
 .industry-copy h2 {
-  font-family: Inter, system-ui, sans-serif;
-  font-size: clamp(34px, 3.1vw, 46px);
+  font-family: var(--jca-title-font);
+  font-size: var(--jca-section-title-size);
   font-weight: 400;
-  line-height: 1.08;
-  letter-spacing: -0.03em;
+  line-height: var(--jca-title-leading);
+  letter-spacing: var(--jca-title-tracking);
 }
 
 .industry-copy h2 em {
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .industry-copy .lead {
   margin: 22px 0 0;
-  font-size: 15px;
+  font-size: var(--jca-lead-size);
 }
 
 .industry-grid {
@@ -1212,16 +1205,9 @@ footer {
 
   .solutions-bg img {
     object-position: center 60%;
-  }
-
-  .solutions-bg::after {
-    background: linear-gradient(
-      180deg,
-      #f4f5f5 0%,
-      rgba(244, 245, 245, 0.75) 22%,
-      rgba(244, 245, 245, 0.2) 45%,
-      transparent 60%
-    );
+    mask-image: linear-gradient(180deg, transparent 0%, rgba(0,0,0,.03) 12%,
+      rgba(0,0,0,.15) 25%, rgba(0,0,0,.42) 38%, rgba(0,0,0,.74) 50%,
+      rgba(0,0,0,.94) 62%, #000 72%, #000 92%, transparent 100%);
   }
 
   .solutions-copy {

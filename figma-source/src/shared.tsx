@@ -84,6 +84,15 @@ export function useReveal(selectors: string[], parallaxSelector?: string) {
   }, []);
 }
 
+export function BrandLogo() {
+  return (
+    <span className="brand-logo" aria-hidden="true">
+      <img className="brand-logo-white" src="/assets/logo-jca-white.png" width="368" height="181" alt="" />
+      <img className="brand-logo-black" src="/assets/logo-jca-black.png" width="374" height="187" alt="" />
+    </span>
+  );
+}
+
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLButtonElement>(null);
@@ -92,10 +101,7 @@ export function Header() {
   return (
     <header className="site-header page-width">
       <a className="brand" href={internal ? "/#inicio" : "#/"} aria-label="JCA y Asociados, inicio" onClick={close}>
-        <span className="brand-mark">A</span>
-        <span>
-          <b>JCA</b> &amp; Asociados
-        </span>
+        <BrandLogo />
       </a>
       <button
         ref={menuRef}
@@ -138,11 +144,8 @@ export function Footer() {
   return (
     <footer>
       <div className="page-width footer-inner">
-        <a className="brand" href="/#inicio">
-          <span className="brand-mark">A</span>
-          <span>
-            <b>JCA</b> &amp; Asociados
-          </span>
+        <a className="brand" href="/#inicio" aria-label="JCA y Asociados, inicio">
+          <BrandLogo />
         </a>
         <div className="footer-contact">
           <a href="mailto:info@ndtcontrol.com.ar">info@ndtcontrol.com.ar</a>

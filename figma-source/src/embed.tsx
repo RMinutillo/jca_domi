@@ -15,6 +15,13 @@ if (host) {
   stylesheet.href = "/design/assets/site.css";
   shadow.append(rootStyle, stylesheet);
 
+  // The document registers the shared fonts; this final sheet supplies the same
+  // typography inside the shadow tree without duplicating its scale or font faces.
+  const typography = document.createElement("link");
+  typography.rel = "stylesheet";
+  typography.href = "/typography.css";
+  shadow.append(typography);
+
   const root = document.createElement("div");
   shadow.append(root);
 
