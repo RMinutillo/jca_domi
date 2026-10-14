@@ -216,7 +216,6 @@ function updateUI(p){
   stage.dataset.theme=p<.32?'dark':p<.82?'light':'red';
   const opacity=[1-smooth(.10,.30,p),smooth(.20,.34,p)*(1-smooth(.67,.82,p)),smooth(.72,.86,p)];
   chapters.forEach((c,i)=>{c.style.opacity=opacity[i];c.style.visibility=opacity[i]>.001?'visible':'hidden';const offset=i===0?-smooth(.1,.25,p)*45:i===1?(1-smooth(.28,.38,p))*40-smooth(.63,.76,p)*35:(1-smooth(.76,.86,p))*40;c.querySelector('.chapter-copy').style.transform=`translateY(${offset}px)`;});
-  $('.floor-label').style.opacity=opacity[0];
   const tracks=document.querySelectorAll('.progress-track i');tracks[0].style.transform=`scaleX(${clamp(p/.46)})`;tracks[1].style.transform=`scaleX(${clamp((p-.46)/.48)})`;
   const lightTheme=p>=.32&&p<.82;shared.gridColor.value.set(...(lightTheme?[.18,.27,.32]:[.75,.84,.9]));
   setChapter(p<.28?0:p<.76?1:2);
@@ -225,7 +224,7 @@ function fallback(message){reduced=true;setupScroll();$('.scene-loading').textCo
 
 // All three outer components share an axis and scale before separating.
 const assemblyPoses={
-  desktop:[[.735,.49,.072,.20,-.60,.38],[.30,.50,.061,.15,-.40,-.27]],
+  desktop:[[.64,.49,.072,.20,-.60,.38],[.30,.50,.061,.15,-.40,-.27]],
   phone:[[.50,.72,.145,.15,-.60,.25],[.48,.67,.089,.12,-.40,-.18]]
 };
 const assemblyPosition=new THREE.Vector3(),assemblyQuaternion=new THREE.Quaternion(),localQuaternion=new THREE.Quaternion(),targetQuaternion=new THREE.Quaternion(),targetEuler=new THREE.Euler(),localPosition=new THREE.Vector3(),finalPosition=new THREE.Vector3();

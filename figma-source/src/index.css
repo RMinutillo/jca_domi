@@ -46,7 +46,7 @@ a {
 }
 
 .page-width {
-  width: min(1180px, calc(100% - 112px));
+  width: var(--jca-content-width);
   margin: 0 auto;
 }
 
@@ -778,9 +778,6 @@ footer {
 }
 
 @media (max-width: 900px) {
-  .page-width {
-    width: min(100% - 48px, 680px);
-  }
 
 
   .site-header {
@@ -961,9 +958,6 @@ footer {
 }
 
 @media (max-width: 560px) {
-  .page-width {
-    width: calc(100% - 40px);
-  }
 
   h1 {
     font-size: 50px;

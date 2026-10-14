@@ -392,9 +392,6 @@ export function Home({ topic, setTopic, embedded = false }: { topic: string; set
               soluciones de inspección y ensayos no destructivos, combinando experiencia técnica,
               personal calificado y trabajo bajo normas reconocidas.
             </p>
-            <a className="btn btn-light" href="#contacto">
-              Conocé más sobre JCA
-            </a>
           </div>
           <div className="stat">
             <strong>+50</strong>

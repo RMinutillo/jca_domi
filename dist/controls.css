@@ -1,3 +1,4 @@
+@import "./containers.css";
 /* Shared controls: used by the 3D home and the isolated Figma content. */
 /* Frame only the nontransparent bounds; the supplied PNG files remain untouched. */
 .brand-logo{position:relative;display:block;flex-shrink:0;width:220px;aspect-ratio:292/100;overflow:hidden}
@@ -39,9 +40,6 @@
 .btn-light:hover{color:#0d151b;background:#edf0f1;border-color:#edf0f1}
 .btn-dark{color:#fff;background:#0d151b;border-color:#0d151b}
 .btn-dark:hover{background:#24323c;border-color:#24323c}
-.stage{--home-content-left:7%;--home-content-width:min(1180px,86%)}
-.header{left:var(--home-content-left);right:auto;width:var(--home-content-width);transform:none}
-.hero-copy{left:var(--home-content-left)}
 .header,.site-header{display:flex;align-items:center;justify-content:space-between;gap:20px}
 .site-header .brand{white-space:nowrap;flex-shrink:0}
 .header nav,.site-header .nav{display:flex;align-items:center;gap:28px}
@@ -67,7 +65,7 @@ a.solution-item:hover .solution-indicator,a.solution-item:focus-visible .solutio
 .whatsapp{position:fixed;right:max(20px,env(safe-area-inset-right));bottom:calc(20px + env(safe-area-inset-bottom));z-index:50;display:grid;place-items:center;width:48px;height:48px;color:#fff;background:#189b4b;border:1px solid #ffffff30;box-shadow:0 2px 8px #0002;transition:background-color 160ms ease}
 .whatsapp:hover,.whatsapp:active{transform:none;background:#168b43}
 .whatsapp:focus-visible{outline:2px solid #168b43;outline-offset:4px}
-.story-controls-visible .whatsapp-home{bottom:calc(100px + env(safe-area-inset-bottom))}
+.whatsapp-home{bottom:calc(100px + env(safe-area-inset-bottom))}
 .back-top:hover,.back-top:active{transform:none}
 @media(max-width:900px){
   .header{width:var(--home-content-width);height:86px}

@@ -1,0 +1,33 @@
+/* Content only: the stage, canvas and full-bleed backgrounds retain their size. */
+:root,:host{
+  --jca-content-max:1536px;
+  --jca-content-gutter:clamp(24px,7.7vw,140px);
+  --jca-content-width:min(var(--jca-content-max),calc(100% - 2 * var(--jca-content-gutter)));
+  --jca-content-offset:calc((100% - var(--jca-content-width))/2);
+}
+.page-width{width:var(--jca-content-width);margin-inline:auto}
+/* Grid items may shrink to the container; long headings must wrap, not clip. */
+.page-width > *{min-width:0}
+.page-width :where(div,article,li,section){min-width:0}
+.ndt-copy h1{overflow-wrap:anywhere}
+.stage{--home-content-width:var(--jca-content-width);--home-content-left:var(--jca-content-offset)}
+.stage .header{left:var(--home-content-left);right:auto;width:var(--home-content-width);transform:none}
+.stage .hero-copy{left:var(--home-content-left);width:calc(var(--home-content-width) * .48)}
+.stage .inspect-copy{left:auto;right:var(--home-content-left);width:calc(var(--home-content-width) * .35)}
+.stage .services-copy{left:auto;right:var(--home-content-left);width:calc(var(--home-content-width) * .42)}
+.stage .hero-note{right:var(--home-content-left)}
+.stage .scan-caption,.stage .method-label{left:var(--home-content-left)}
+.stage .stage-bottom{left:var(--home-content-left);right:var(--home-content-left)}
+@media(max-width:700px){
+  .stage .hero-copy,.stage .inspect-copy,.stage .services-copy{
+    left:var(--home-content-left);right:auto;width:var(--home-content-width);max-width:none;
+  }
+}
+/* Preserve the side-by-side text/model composition on short landscape screens. */
+@media(min-width:501px) and (max-width:950px) and (max-height:500px) and (orientation:landscape){
+  .stage .hero-copy{left:var(--home-content-left);right:auto;width:calc(var(--home-content-width) * .46)}
+  .stage .inspect-copy{left:auto;right:var(--home-content-left);width:calc(var(--home-content-width) * .35)}
+  .stage .services-copy{left:auto;right:var(--home-content-left);width:calc(var(--home-content-width) * .44)}
+}
+body.reduced .stage .chapter{padding-inline:var(--home-content-left)}
+body.reduced .stage .chapter-copy{left:auto;right:auto}
