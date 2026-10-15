@@ -17,6 +17,7 @@ let hovered=null,lastTouch=0,touchStart=null,lastScrollTime=-Infinity;
 let mobileFraming=null,mobileCopyBottom=[0,0,0],mobileBottom=0;
 let reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let method='ultrasound',width=1,height=1,activeChapter=-1;
+let inspectionRequested=false,inspectionReveal=0;
 let scrollStart=0,scrollRange=2400,quality=1,frameAverage=16,qualitySamples=0,lastQualityChange=0;
 let lightX=Infinity,lightY=Infinity;
 let renderer,scene,camera,assembly,ring,grid,crack,texture,pmrem,envMap;
@@ -68,6 +69,7 @@ $('.skip').addEventListener('click',e=>{if(!reduced){e.preventDefault();jump(.94
 document.querySelectorAll('.brand,.footer a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();jump(0);}));
 function chooseMethod(button){
   method=button.closest('.service').dataset.method;
+  if(state.progress>=.76)inspectionRequested=true;
   document.querySelectorAll('.service').forEach(row=>{const active=row.dataset.method===method;row.classList.toggle('is-open',active);row.querySelector('button').setAttribute('aria-expanded',String(active));row.querySelector('.service-detail').hidden=!active;});
   measureMobileLayout();
 }
@@ -285,6 +287,11 @@ function frame(time){
   const a=smooth(.13,.39,p),b=smooth(SERVICE_START,SERVICE_END,p);
   // One scroll clock: a short camera move, then three mechanical separations.
   const serviceTime=clamp((p-SERVICE_START)/(SERVICE_END-SERVICE_START));
+  // An explicit service selection can finish the inspection framing before scroll
+  // reaches the end. Release it smoothly on the way back; never affect the intro.
+  if(p<SERVICE_START)inspectionRequested=false;
+  inspectionReveal=mix(inspectionReveal,inspectionRequested?1:0,1-Math.exp(-dt*5));
+  const inspectionBlend=inspectionReveal*smooth(SERVICE_START,.76,p);
   const worldHeight=2*Math.tan(THREE.MathUtils.degToRad(17))*9,worldWidth=worldHeight*width/height;
   const config=phone?assemblyPoses.phone:assemblyPoses.desktop,selectedIndex=pieces.findIndex(piece=>piece.key===method);
   const common=config[0].map((v,i)=>mix(v,config[1][i],a)),commonScale=worldWidth*common[2];
@@ -339,7 +346,7 @@ function frame(time){
     const depthScale=(9-finalDepth)/9;
     finalPosition.set((finalPose[0]-.5)*worldWidth*depthScale,(.5-finalPose[1])*worldHeight*depthScale,finalDepth);
     // One straight 3D segment per piece, eased only at its mechanical end stops.
-    const drift=smooth(profile.start,profile.end,serviceTime);
+    const drift=mix(smooth(profile.start,profile.end,serviceTime),1,inspectionBlend);
     piece.group.position.copy(localPosition).lerp(finalPosition,drift);
     const finalScale=worldWidth*finalPose[2]*depthScale*(1+piece.hover*.035);
     piece.group.scale.setScalar(mix(commonScale,finalScale,drift));
