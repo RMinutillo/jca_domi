@@ -26,6 +26,14 @@ let shellRear,shellFront,opening=0;
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 const smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a));return t*t*(3-2*t);};
 const mix=(a,b,t)=>a+(b-a)*t;
+// Begin after the scan completes (.62); retain the same .34 scroll distance.
+const SERVICE_START=.62,SERVICE_END=.96;
+// Existing group order: cylinder, plain plate, drilled plate. No extra timeline.
+const serviceProfiles=[
+  {start:.43,end:.73,depth:1.6},
+  {start:.70,end:1,depth:-2},
+  {start:.16,end:.46,depth:3.8}
+];
 
 function shownProgress(current,target,dt){
   const rate=12+Math.min(12,Math.abs(target-current)*40);
@@ -34,10 +42,10 @@ function shownProgress(current,target,dt){
   const rollStep=Math.min(.008,dt*.48);
   if(next>current&&current<.39&&next>.13)next=Math.min(next,Math.max(current,.13)+rollStep);
   if(next<current&&current>.13&&next<.39)next=Math.max(next,Math.min(current,.39)-rollStep);
-  // Keep the existing protection for the short 2→3 segment.
-  const step=Math.min(.025,dt*1.2);
-  if(next>current&&current<.86&&next>.64)return Math.min(next,Math.max(current,.64)+step);
-  if(next<current&&current>.64&&next<.86)return Math.max(next,Math.min(current,.86)-step);
+  // Resolve each mechanical separation even on a large wheel/touch update.
+  const step=Math.min(.018,dt*.54);
+  if(next>current&&current<SERVICE_END&&next>SERVICE_START)return Math.min(next,Math.max(current,SERVICE_START)+step);
+  if(next<current&&current>SERVICE_START&&next<SERVICE_END)return Math.max(next,Math.min(current,SERVICE_END)-step);
   return next;
 }
 
@@ -274,13 +282,13 @@ function frame(time){
   const dx=Math.round(smoothedPointer.x*22),dy=Math.round(smoothedPointer.y*14);
   if(dx!==lightX){stage.style.setProperty('--light-dx',`${dx}px`);lightX=dx;}
   if(dy!==lightY){stage.style.setProperty('--light-dy',`${dy}px`);lightY=dy;}
-  const a=smooth(.13,.39,p),b=smooth(.64,.86,p);
-  // Service-only choreography: exact zero at both existing compositions.
-  const serviceArc=4*b*(1-b),serviceTurn=b*(2-b);
+  const a=smooth(.13,.39,p),b=smooth(SERVICE_START,SERVICE_END,p);
+  // One scroll clock: a short camera move, then three mechanical separations.
+  const serviceTime=clamp((p-SERVICE_START)/(SERVICE_END-SERVICE_START));
   const worldHeight=2*Math.tan(THREE.MathUtils.degToRad(17))*9,worldWidth=worldHeight*width/height;
   const config=phone?assemblyPoses.phone:assemblyPoses.desktop,selectedIndex=pieces.findIndex(piece=>piece.key===method);
   const common=config[0].map((v,i)=>mix(v,config[1][i],a)),commonScale=worldWidth*common[2];
-  assemblyPosition.set((common[0]-.5)*worldWidth,(.5-common[1])*worldHeight+Math.sin(elapsed*.65)*.012,0);
+  assemblyPosition.set((common[0]-.5)*worldWidth,(.5-common[1])*worldHeight+Math.sin(elapsed*.65)*.012*(1-smooth(0,.16,serviceTime)),0);
   assemblyQuaternion.setFromEuler(targetEuler.set(common[3]+smoothedPointer.y*.10,common[4]+smoothedPointer.x*.13,common[5]));
   const perspective=introPerspective(p);
   introQuaternion.setFromAxisAngle(introAxis,THREE.MathUtils.degToRad(phone?31:33)*perspective);
@@ -298,51 +306,54 @@ function frame(time){
   const trackingY=assemblyPosition.y*trackingWeight;
   camera.position.set((phone?.10:.18)*perspective+trackingX,trackingY,cameraDistance);
   camera.lookAt(trackingX,trackingY,0);
-  if(b>0&&b<1){
-    // A single curved orbit, not a retraced lateral pan: the outgoing and
-    // incoming portions have different depths. Endpoints retain the exact camera.
-    const compact=phone||landscape;
-    const orbitPhase=Math.PI*b,orbitEnvelope=Math.sin(orbitPhase);
-    const orbitYaw=THREE.MathUtils.degToRad(compact?22.1:33.8)*orbitEnvelope;
-    const orbitDepth=(compact?.585:1.43)*Math.sin(2*orbitPhase)*orbitEnvelope;
-    const orbitSin=Math.sin(orbitYaw),orbitCos=Math.cos(orbitYaw);
-    const pivotX=assemblyPosition.x;
-    const orbitTargetX=pivotX*(1-orbitCos),orbitTargetZ=pivotX*orbitSin;
-    camera.position.set(orbitTargetX+(9+orbitDepth)*orbitSin,0,orbitTargetZ+(9+orbitDepth)*orbitCos);
-    camera.lookAt(orbitTargetX,0,orbitTargetZ);
+  if(p>SERVICE_START){
+    // Move once, before release; hold the resulting perspective without orbiting.
+    const follow=(phone||landscape)?.5:1;
+    const cameraStep=smooth(0,.16,serviceTime);
+    camera.position.set(.65*follow*cameraStep,.08*follow*cameraStep,9+.25*follow*cameraStep);
+    camera.lookAt(.08*follow*cameraStep,0,0);
   }
   camera.updateMatrixWorld();
   opening=smooth(.17,.48,p);
-  const shellOpening=opening*(1-b*.55);
+  // The tube's existing internal opening is held; only the three outer groups move.
+  const shellOpening=opening;
   shellRear.position.x=-.78*shellOpening;shellFront.position.x=1.05*shellOpening;
   pieces.forEach((piece,i)=>{
     piece.selected=mix(piece.selected,piece.key===method?1:0,1-Math.exp(-dt*5));
     const selected=piece.selected,side=(i<selectedIndex?i:i-1)<=0?.15:.85;
     piece.secondaryX=mix(piece.secondaryX??side,side,1-Math.exp(-dt*5));
-    const secondary=phone?[piece.secondaryX,.85,.043]:[.13+i*.145,.725,.034];
-    const focus=phone?[.50,height<760?.74:.72,i===0?.114:height<760?.16:.19]:[.285,.445,i===0?.079:i===1?.12:.113];
+    // A focus slot plus two separated inspection slots, whichever method is selected.
+    // The side is interpolated by the existing selection interaction.
+    const lane=clamp((piece.secondaryX-.15)/.70);
+    const shortPhone=phone&&height<760;
+    const secondary=phone?
+      [mix(i===1?.02:.20,i===2&&!shortPhone?.90:.72,lane),i===1?.72:i===2?(shortPhone?.87:.79):.88,i===0?.039:.038]:
+      [mix(landscape&&i===1?.02:.17,i===2?(landscape?.48:.54):.50,lane),i===0?.82:i===1?(landscape?.30:.32):.70,i===0?.027:.030];
+    const focus=phone?[.46,shortPhone?.70:.73,i===0?.088:i===1?.135:.125]:[.255,landscape?(i===0?.43:.38):(i===0?.58:.53),i===0?(landscape?.045:.055):i===1?.090:.085];
     const finalPose=[mix(secondary[0],focus[0],selected),mix(secondary[1],focus[1],selected),mix(secondary[2],focus[2],selected),i===0?.04:-.2,i===0?-.35:.37,i===0?-.24:-.16];
     const localX=i===0?0:i===1?mix(-2.42,-4.0,opening):mix(2.36,4.25,opening);
     localPosition.set(localX,0,0).multiplyScalar(commonScale).applyQuaternion(assemblyQuaternion).add(assemblyPosition);
-    finalPosition.set((finalPose[0]-.5)*worldWidth,(.5-finalPose[1])*worldHeight,piece.hover*.1);
-    piece.group.position.copy(localPosition).lerp(finalPosition,b);
-    // Open the fan in depth while retaining the original endpoints and ordering.
-    piece.group.position.x+=(i===0?0:i===1?-1:1)*worldWidth*((phone||landscape)?.015:.01)*serviceArc;
-    piece.group.position.y+=(i===0?-.025:.035)*worldHeight*serviceArc;
-    piece.group.position.z+=(i===0?.45:i===1?-.45:.65)*((phone||landscape)?.5:1)*serviceArc;
-    // Keep the side components legible until the composition starts settling.
-    piece.group.scale.setScalar(mix(commonScale,worldWidth*finalPose[2]*(1+piece.hover*.035),i===0?b:b*b));
+    // Separate physical depth planes also during option changes. Compensating
+    // X/Y and scale preserves the intended screen-space composition at z != 0.
+    const profile=serviceProfiles[i],finalDepth=profile.depth+piece.hover*.1;
+    const depthScale=(9-finalDepth)/9;
+    finalPosition.set((finalPose[0]-.5)*worldWidth*depthScale,(.5-finalPose[1])*worldHeight*depthScale,finalDepth);
+    // One straight 3D segment per piece, eased only at its mechanical end stops.
+    const drift=smooth(profile.start,profile.end,serviceTime);
+    piece.group.position.copy(localPosition).lerp(finalPosition,drift);
+    const finalScale=worldWidth*finalPose[2]*depthScale*(1+piece.hover*.035);
+    piece.group.scale.setScalar(mix(commonScale,finalScale,drift));
     localQuaternion.setFromEuler(targetEuler.set(0,i===0?0:i===1?-Math.PI/2:Math.PI/2-opening*.18,0));
     piece.group.quaternion.copy(assemblyQuaternion).multiply(localQuaternion);
     targetQuaternion.setFromEuler(targetEuler.set(finalPose[3]+smoothedPointer.y*.14,finalPose[4]+smoothedPointer.x*.18,finalPose[5]));
     // Advance along the original shortest rotation, never overshoot or rewind.
-    piece.group.quaternion.slerp(targetQuaternion,serviceTurn);
-    piece.shadowRotation=mix(common[5],finalPose[5],b);
+    piece.group.quaternion.slerp(targetQuaternion,drift);
+    piece.shadowRotation=mix(common[5],finalPose[5],drift);
   });
   if(mobileFraming&&(phone||landscape)){
     const top=phone?mix(mix(mobileCopyBottom[0],mobileCopyBottom[1],a),mobileCopyBottom[2],b):$('.header').offsetHeight+10;
-    const softReserve=Math.max(smooth(.13,.17,p)*(1-smooth(.35,.39,p)),smooth(.64,.68,p)*(1-smooth(.82,.86,p)));
-    mobileFraming(camera,width,height,{top,bottom:mobileBottom,softReserve},shellOpening);
+    const softReserve=Math.max(smooth(.13,.17,p)*(1-smooth(.35,.39,p)),smooth(SERVICE_START,SERVICE_START+.04,p)*(1-smooth(SERVICE_END-.04,SERVICE_END,p)));
+    mobileFraming(camera,width,height,{top:top,bottom:mobileBottom,softReserve},shellOpening);
   }
   pieces.forEach((piece,i)=>{
     // Shadows follow the actual component centres, including the opening.
