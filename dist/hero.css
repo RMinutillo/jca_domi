@@ -1,0 +1,64 @@
+/* Standalone hero. The rest of the Home and all service interiors are untouched. */
+body .story,body:not(.reduced) .story{height:auto}
+body .stage,body.reduced .stage{position:relative;height:max(100svh,640px);min-height:0;overflow:clip}
+.stage .chapter-hero,body.reduced .stage .chapter-hero{position:absolute;inset:0;min-height:0;padding:0;opacity:1;visibility:visible;pointer-events:none}
+.stage .hero-copy,body.reduced .stage .hero-copy{position:absolute;left:var(--home-content-left);top:23%;width:calc(var(--home-content-width)*.46);max-width:680px;pointer-events:auto;padding:0}
+.stage .hero-title-line{display:block;color:inherit;margin-left:0;transform-origin:left center}
+.stage .hero-title-accent{color:var(--red)}
+.stage .hero-copy h1{line-height:1.005}
+.stage .hero-copy .hero-eyebrow-text{display:inline;width:auto;height:auto;background:none}
+.stage .hero-copy .hero-rule{display:block;flex:none}
+.stage .hero-copy .primary{display:inline-flex;text-decoration:none}
+.stage .hero-note{display:flex;right:var(--home-content-left);bottom:112px;font-size:11px}
+.stage .hero-help-touch{display:none}
+.stage .stage-bottom,body.reduced .stage .stage-bottom{display:flex;min-height:76px}
+.stage .inspection-toggle{display:inline-flex;align-items:center;gap:12px;background:none;border:0;padding:12px 0;min-height:44px;font:inherit;color:inherit}
+.stage .inspection-toggle:hover,.stage .inspection-toggle[aria-pressed=true]{color:var(--red)}
+.hero-interaction{position:absolute;z-index:3;touch-action:none}
+.stage #scene canvas{transition:none}
+.stage .inspection-lens,body.reduced .stage .inspection-lens{display:block;z-index:5;color:#eee;border-color:#ef4444a0;box-shadow:none}
+.stage .lens-label{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:9px;background:#14171bd9;color:#ddd}
+.lens-direction{position:absolute;left:50%;top:50%;width:0;height:0;transform-origin:0 0;transition:opacity .15s}
+.lens-direction::after{content:'';position:absolute;left:-3px;top:-3px;width:0;height:0;border-left:6px solid var(--red);border-top:3px solid transparent;border-bottom:3px solid transparent}
+.inspection-hud{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#efeee9}
+.hud-leader{position:absolute;inset:0;width:100%;height:100%;overflow:visible;fill:none;stroke:#ef444480;stroke-width:1}
+.detection-reticle{position:absolute;top:0;left:0;width:0;height:0}
+.detection-reticle::before{content:'';position:absolute;left:-19px;top:-19px;width:38px;height:38px;border:1px solid #ef4444a6;border-radius:50%;transform:scale(1.8);transition:transform .35s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 16px #ef44441a}
+.is-detected .detection-reticle::before{transform:scale(1)}
+.detection-reticle i{position:absolute;left:-1px;top:-25px;width:2px;height:7px;background:var(--red);transform-origin:1px 25px}
+.detection-reticle i:nth-child(2){transform:rotate(90deg)}.detection-reticle i:nth-child(3){transform:rotate(180deg)}.detection-reticle i:nth-child(4){transform:rotate(270deg)}
+.hud-label{position:absolute;left:0;top:0;width:248px;padding:13px 14px;background:#11161aef;border-left:2px solid var(--red);font-size:10px;line-height:1.6;box-shadow:0 5px 22px #0002}
+.hud-label strong,.hud-label span,.hud-label small{display:block}
+.hud-label strong{font-size:10px;letter-spacing:.05em;color:#ff756b;font-weight:500;margin-bottom:5px}
+.hud-label .hud-detail{font-size:12px}.hud-label .hud-zone{color:#b6bac2}.hud-label small{margin-top:5px;font-size:8px;line-height:1.4;color:#89939c}
+.is-detected .hud-type{animation:hero-hud-type .75s steps(48,end) both}
+@keyframes hero-hud-type{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0)}}
+.hero-sr-status{position:absolute;width:1px;height:1px;padding:0;margin:-1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
+body.reduced .stage #scene,body.reduced .stage .scene-depth{display:block}
+body.reduced .stage h1{max-width:none}body.reduced .stage h1 span{margin-left:0}
+.inspection-hud.is-static .hud-type{animation:none;clip-path:none}.inspection-hud.is-static .detection-reticle::before{transition:none}
+body.reduced .stage *{animation:none!important;transition:none!important}
+.scene-failed .stage .scene-loading{display:block;opacity:1;max-width:260px;left:60%;top:50%}
+.scene-failed .stage #scene,.scene-failed .hero-interaction,.scene-failed .inspection-hud,.scene-failed .inspection-lens{display:none!important}
+@media(min-width:1650px){.stage .hero-copy,body.reduced .stage .hero-copy{top:25%}}
+@media(max-width:700px) and (orientation:portrait){
+  body .stage,body.reduced .stage{height:max(100svh,800px)}
+  .stage .hero-copy,body.reduced .stage .hero-copy{top:104px;width:var(--home-content-width);max-width:none}
+  .stage .hero-title-line:nth-child(2),.stage .hero-title-line:nth-child(3){display:inline}
+  .stage .hero-title-accent,body.reduced .stage h1 .hero-title-accent{margin-left:.15em}
+  .stage .hero-note{display:flex;bottom:91px;font-size:9px;left:var(--home-content-left);right:auto;pointer-events:none}
+  .stage .hero-help-desktop{display:none}.stage .hero-help-touch{display:inline}
+  .stage .stage-bottom,body.reduced .stage .stage-bottom{min-height:65px;font-size:9px}
+  .stage .inspection-toggle{gap:6px;font-size:10px}
+  .hud-label{width:222px;padding:11px 12px;font-size:9px}.hud-label strong{font-size:9px}.hud-label .hud-detail{font-size:11px}
+  .stage .hero-copy .intro{max-width:330px}
+  .scene-failed .stage .scene-loading{left:var(--home-content-left);top:65%;max-width:280px}
+}
+@media(max-width:360px) and (orientation:portrait){body .stage,body.reduced .stage{height:max(100svh,830px)}}
+@media(min-width:501px) and (max-width:950px) and (max-height:500px) and (orientation:landscape){
+  body .stage,body.reduced .stage{height:max(100svh,430px)}
+  .stage .hero-copy,body.reduced .stage .hero-copy{top:80px;width:calc(var(--home-content-width)*.46)}
+  .stage .hero-note{display:none}.stage .stage-bottom,body.reduced .stage .stage-bottom{min-height:48px}
+  .hud-label{font-size:9px}.hud-label .hud-detail{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){.stage *{animation:none!important;transition:none!important}}

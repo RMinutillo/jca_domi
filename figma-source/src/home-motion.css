@@ -1,0 +1,30 @@
+/* Home only. Final layout and interactive hover transforms stay unchanged. */
+.home-motion .home-reveal {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition: opacity 620ms cubic-bezier(.22, 1, .36, 1), transform 620ms cubic-bezier(.22, 1, .36, 1);
+  transition-delay: var(--home-reveal-delay, 0ms);
+}
+.home-motion .home-reveal.is-home-visible {
+  opacity: 1;
+  transform: none;
+}
+.home-motion .home-reveal:focus-within {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+@media (max-width: 700px) {
+  .home-motion .home-reveal {
+    transform: translate3d(0, 14px, 0);
+    transition-duration: 480ms;
+  }
+  .home-motion .home-reveal.is-home-visible { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-motion .home-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

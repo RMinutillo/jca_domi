@@ -12,15 +12,14 @@
   <link rel="stylesheet" href="./controls.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600&amp;family=Inter:wght@300;400;500;600&amp;display=swap">
   <link rel="stylesheet" href="./typography.css">
+  <link rel="stylesheet" href="./hero.css">
 </head>
 <body>
-  <a class="skip" href="#services-content">Ir a servicios</a>
+  <a class="skip" href="#nuestras-soluciones">Ir a servicios</a>
   <main>
     <div class="story" id="inicio">
-      <div class="stage">
+      <div class="stage" data-theme="dark" data-hero-state="loading">
         <div class="backdrop" aria-hidden="true"></div>
-        <div class="color-panel panel-light" aria-hidden="true"></div>
-        <div class="color-panel panel-red" aria-hidden="true"></div>
         <header class="header">
           <a href="#inicio" class="brand" aria-label="JCA & Asociados, inicio"><span class="brand-logo brand-logo-menu" aria-hidden="true"><img class="brand-logo-white" src="./assets/logo-jca-menu-white.png" width="328" height="115" alt=""><img class="brand-logo-black" src="./assets/logo-jca-menu-black.png" width="328" height="115" alt=""></span></a>
           <button type="button" class="menu-button" aria-label="Abrir menú" aria-controls="home-navigation" aria-expanded="false"><i></i><i></i></button>
@@ -33,50 +32,28 @@
         </header>
         <div class="scene-depth" aria-hidden="true"></div>
         <div id="scene" aria-hidden="true"></div>
+        <div class="hero-interaction" aria-hidden="true"></div>
         <div class="scene-loading" role="status">Preparando la pieza…</div>
         <section class="chapter chapter-hero" aria-labelledby="hero-title">
           <div class="chapter-copy hero-copy">
-            <p class="eyebrow"><span></span> PRECISIÓN QUE GENERA CONFIANZA</p>
-            <h1 id="hero-title">Lo que no ves.<br>También <br><span>importa.</span></h1>
+            <p class="eyebrow"><span class="hero-rule"></span><span class="hero-eyebrow-text">PRECISIÓN QUE GENERA CONFIANZA</span></p>
+            <h1 id="hero-title" aria-label="Lo que no ves. También importa."><span class="hero-title-line">Lo que no ves.</span><span class="hero-title-line">También</span><span class="hero-title-line hero-title-accent">importa.</span></h1>
             <p class="intro">Evaluamos materiales, soldaduras y componentes para conocer su estado, sin dañarlos.</p>
-            <button type="button" class="primary" data-jump="0.48">Descubrí cómo</button>
+            <a class="primary" href="#nuestras-soluciones">Descubrí cómo</a>
             <a class="btn btn-secondary hero-secondary" href="#nuestras-soluciones">Nuestros servicios</a>
           </div>
-          <div class="hero-note"><span class="note-rule"></span><span>Pasá el mouse por la pieza<br>y mirá un poco más adentro.</span></div>
+          <div class="hero-note" id="hero-help"><span class="note-rule"></span><span class="hero-help-desktop">Pasá el mouse por la pieza<br>y encontrá la falla.</span><span class="hero-help-touch">Arrastrá sobre la pieza<br>y encontrá la falla.</span></div>
         </section>
-        <section class="chapter chapter-inspect" aria-labelledby="inspect-title" aria-hidden="true" inert>
-          <div class="chapter-copy inspect-copy">
-            <p class="eyebrow">02 / MIRAR MÁS ADENTRO</p>
-            <h2 id="inspect-title">La superficie <br>no cuenta <br><span>todo.</span></h2>
-            <p class="intro">Revelamos discontinuidades para conocer el material y tomar mejores decisiones.</p>
-            <div class="inspect-caption"><span class="red-line"></span><p>Mové el cursor sobre la pieza.<br><strong>Explorá el interior.</strong></p></div>
-          </div>
-        </section>
-        <section class="chapter chapter-services" aria-labelledby="services-title" aria-hidden="true" inert>
-          <div class="chapter-copy services-copy" id="services-content">
-            <p class="eyebrow">03 / EL MÉTODO ADECUADO</p>
-            <h2 id="services-title">Cada material.<br><span>Una respuesta.</span></h2>
-            <div class="services" aria-label="Métodos de inspección">
-              <div class="service is-open" data-method="ultrasound">
-                <h3><button type="button" aria-expanded="true" aria-controls="ultrasound-detail"><span class="service-n">01</span><span>Ultrasonido</span><span class="plus" aria-hidden="true"></span></button></h3>
-                <div class="service-detail" id="ultrasound-detail"><p>Ondas sonoras que permiten detectar discontinuidades internas y medir espesores.</p><span class="service-tag">INSPECCIÓN DEL INTERIOR</span></div>
-              </div>
-              <div class="service" data-method="radiography">
-                <h3><button type="button" aria-expanded="false" aria-controls="radiography-detail"><span class="service-n">02</span><span>Radiografía</span><span class="plus" aria-hidden="true"></span></button></h3>
-                <div class="service-detail" id="radiography-detail" hidden><p>Imágenes del interior para examinar soldaduras y detectar discontinuidades en el material.</p><span class="service-tag">ENSAYOS VOLUMÉTRICOS</span></div>
-              </div>
-              <div class="service" data-method="surface">
-                <h3><button type="button" aria-expanded="false" aria-controls="surface-detail"><span class="service-n">03</span><span>Ensayos superficiales</span><span class="plus" aria-hidden="true"></span></button></h3>
-                <div class="service-detail" id="surface-detail" hidden><p>Líquidos penetrantes y partículas magnéticas para revelar discontinuidades en la superficie, según el material.</p><span class="service-tag">ATENCIÓN AL DETALLE</span></div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <div class="inspection-lens" aria-hidden="true"><span class="lens-cross"></span><span class="lens-label">Explorar</span></div>
+        <div class="inspection-lens" aria-hidden="true"><span class="lens-cross"></span><span class="lens-direction"></span><span class="lens-label">Inspección</span></div>
+        <div class="inspection-hud" id="inspection-hud" aria-hidden="true">
+          <svg class="hud-leader" aria-hidden="true"><path /></svg>
+          <div class="detection-reticle" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div class="hud-label"><div class="hud-type"><strong></strong><span class="hud-detail"></span><span class="hud-zone"></span><small></small></div></div>
+        </div>
+        <span class="hero-sr-status" role="status" aria-live="polite"></span>
         <div class="stage-bottom">
           <span class="scroll-cue"><span class="scroll-mark" aria-hidden="true"></span><span id="scroll-text">Deslizá para explorar</span></span>
-          <div class="chapter-nav" aria-label="Progreso de la experiencia"><button type="button" data-jump="0" aria-label="Sección 1, presentación" aria-current="true">01</button><span class="progress-track"><i></i></span><button type="button" data-jump="0.48" aria-label="Sección 2, inspección">02</button><span class="progress-track"><i></i></span><button type="button" data-jump="0.94" aria-label="Sección 3, servicios">03</button></div>
-          <span class="bottom-caption" aria-hidden="true"></span>
+          <button class="inspection-toggle" type="button" aria-controls="inspection-hud" aria-describedby="hero-help" aria-pressed="false">Encontrar la falla <span aria-hidden="true">↗</span></button>
         </div>
       </div>
     </div>
@@ -86,6 +63,7 @@
   </main>
   <div hidden><button type="button" class="motion-toggle" aria-pressed="false">Reducir movimiento</button></div>
   <noscript><div class="noscript"><h2>Ensayos no destructivos</h2><p>Evaluamos materiales, soldaduras y componentes sin dañarlos. Ultrasonido, radiografía y ensayos superficiales.</p><p>Activá JavaScript para explorar la experiencia animada.</p></div></noscript>
+  <script src="./vendor/gsap.min.js"></script>
   <script type="module" src="./app.js"></script>
   <script type="module" src="./design/embed.js"></script>
   <script defer src="./navigation.js"></script>

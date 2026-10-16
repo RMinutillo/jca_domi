@@ -1,5 +1,6 @@
 import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { Footer, Header, FloatingActions, useRoute } from "./shared";
+import { useHomeMotion } from "./home-motion";
 import NdtPage from "./NdtPage";
 import ComplementaryPage from "./ComplementaryPage";
 import InspectionsPage from "./InspectionsPage";
@@ -121,6 +122,8 @@ const methods = [
 ];
 
 export function Home({ topic, setTopic, embedded = false }: { topic: string; setTopic: (value: string) => void; embedded?: boolean }) {
+  const homeRoot = useRef<HTMLElement>(null);
+  useHomeMotion(homeRoot);
   const solutionsCopy = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const copy = solutionsCopy.current;
@@ -172,60 +175,13 @@ export function Home({ topic, setTopic, embedded = false }: { topic: string; set
     };
   }, [embedded]);
 
-  useEffect(() => {
-    if (embedded) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const targets = document.querySelectorAll<HTMLElement>(
-      [
-        ".hero .copy > *",
-        ".hero-image",
-        ".interior .copy > *",
-        ".pipe-image",
-        ".methods .copy > *:not(.method-list)",
-        ".method-list button",
-        ".method-visual > *",
-        ".solutions .copy > *",
-        ".solution-item",
-        ".industries .copy > *:not(ul)",
-        ".industry-grid li",
-        ".experience-grid > *",
-        ".experience .copy > *",
-        ".contact-copy > *:not(ul)",
-        ".contact-details li",
-        ".contact form > *",
-        "footer .footer-inner > *",
-        "footer .footer-legal",
-      ].join(","),
-    );
-    const seen = new Set<HTMLElement>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        });
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -6% 0px" },
-    );
-    targets.forEach((el) => {
-      if (seen.has(el)) return;
-      seen.add(el);
-      const index = Array.prototype.indexOf.call(el.parentElement?.children ?? [], el);
-      el.style.setProperty("--reveal-delay", `${Math.min(index, 8) * 80}ms`);
-      el.classList.add("reveal");
-      observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, []);
-
   const submitForm = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSent(true);
   };
 
   return (
-    <main>
+    <main className="home-motion" ref={homeRoot}>
       {!embedded && <>
       <section className="hero dark-section" id="inicio">
         <Header />
