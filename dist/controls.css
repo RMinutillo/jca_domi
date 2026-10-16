@@ -5,6 +5,9 @@
 .brand-logo img{position:absolute;display:block;max-width:none;height:auto;pointer-events:none}
 .brand-logo .brand-logo-white{width:126.027397%;left:-13.356164%;top:-41%}
 .brand-logo .brand-logo-black{width:128.082192%;left:-14.383562%;top:-44%;visibility:hidden}
+/* Compact menu artwork only; the footer keeps its original logo and framing. */
+.brand-logo.brand-logo-menu{aspect-ratio:285/62}
+.brand-logo-menu .brand-logo-white,.brand-logo-menu .brand-logo-black{width:115.087719%;left:-8.421053%;top:-43.548387%}
 .stage[data-theme=light] .brand-logo-white{visibility:hidden}
 .stage[data-theme=light] .brand-logo-black{visibility:visible}
 .brand:focus-visible{outline:2px solid currentColor;outline-offset:4px}

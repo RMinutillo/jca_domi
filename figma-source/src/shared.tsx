@@ -84,11 +84,11 @@ export function useReveal(selectors: string[], parallaxSelector?: string) {
   }, []);
 }
 
-export function BrandLogo() {
+export function BrandLogo({ menu = false }: { menu?: boolean }) {
   return (
-    <span className="brand-logo" aria-hidden="true">
-      <img className="brand-logo-white" src="/assets/logo-jca-white.png" width="368" height="181" alt="" />
-      <img className="brand-logo-black" src="/assets/logo-jca-black.png" width="374" height="187" alt="" />
+    <span className={menu ? "brand-logo brand-logo-menu" : "brand-logo"} aria-hidden="true">
+      <img className="brand-logo-white" src={menu ? "/assets/logo-jca-menu-white.png" : "/assets/logo-jca-white.png"} width={menu ? 328 : 368} height={menu ? 115 : 181} alt="" />
+      <img className="brand-logo-black" src={menu ? "/assets/logo-jca-menu-black.png" : "/assets/logo-jca-black.png"} width={menu ? 328 : 374} height={menu ? 115 : 187} alt="" />
     </span>
   );
 }
@@ -101,7 +101,7 @@ export function Header() {
   return (
     <header className="site-header page-width">
       <a className="brand" href={internal ? "/#inicio" : "#/"} aria-label="JCA y Asociados, inicio" onClick={close}>
-        <BrandLogo />
+        <BrandLogo menu />
       </a>
       <button
         ref={menuRef}

@@ -4,6 +4,7 @@ import {createAdditionalModels} from './additional-models.js';
 import {createMechanicalCore} from './mechanical-core.js';
 import {createRecessedFracture} from './fracture.js';
 import {createMobileFraming} from './mobile-framing.js';
+import {SERVICE_ARRIVAL,serviceFlights,constellation,createServiceTrain,positionServiceCamera} from './service-motion.js';
 import {createInspectionUniforms,applyInspectionCut,createInspectionLines} from './inspection.js';
 
 const $=s=>document.querySelector(s);
@@ -14,10 +15,11 @@ const state={progress:0},pointer={x:0,y:0,px:-1000,py:-1000,active:false},smooth
 const lens=$('.inspection-lens'),raycaster=new THREE.Raycaster(),rayPoint=new THREE.Vector2();
 const pieces=[],pickMeshes=[],shared={lensCenter:{value:new THREE.Vector2(-1000,-1000)},lensRadius:{value:72},pixelRatio:{value:1},gridColor:{value:new THREE.Vector3(.7,.8,.88)}};
 let hovered=null,lastTouch=0,touchStart=null,lastScrollTime=-Infinity;
-let mobileFraming=null,mobileCopyBottom=[0,0,0],mobileBottom=0;
+let mobileFraming=null,mobileCopyBottom=[0,0,0],mobileBottom=0,mobileTrainRight=0;
 let reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let method='ultrasound',width=1,height=1,activeChapter=-1;
 let inspectionRequested=false,inspectionReveal=0;
+let inspectionPinned=false,inspectionHoverPending=false;
 let scrollStart=0,scrollRange=2400,quality=1,frameAverage=16,qualitySamples=0,lastQualityChange=0;
 let lightX=Infinity,lightY=Infinity;
 let renderer,scene,camera,assembly,ring,grid,crack,texture,pmrem,envMap;
@@ -29,12 +31,6 @@ const smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a));return t*t*(3-2*t);};
 const mix=(a,b,t)=>a+(b-a)*t;
 // Begin after the scan completes (.62); retain the same .34 scroll distance.
 const SERVICE_START=.62,SERVICE_END=.96;
-// Existing group order: cylinder, plain plate, drilled plate. No extra timeline.
-const serviceProfiles=[
-  {start:.43,end:.73,depth:1.6},
-  {start:.70,end:1,depth:-2},
-  {start:.16,end:.46,depth:3.8}
-];
 
 function shownProgress(current,target,dt){
   const rate=12+Math.min(12,Math.abs(target-current)*40);
@@ -43,8 +39,8 @@ function shownProgress(current,target,dt){
   const rollStep=Math.min(.008,dt*.48);
   if(next>current&&current<.39&&next>.13)next=Math.min(next,Math.max(current,.13)+rollStep);
   if(next<current&&current>.13&&next<.39)next=Math.max(next,Math.min(current,.39)-rollStep);
-  // Resolve each mechanical separation even on a large wheel/touch update.
-  const step=Math.min(.018,dt*.54);
+  // Keep the shared train and its arrivals readable on a large wheel/touch update.
+  const step=Math.min(.014,dt*.42);
   if(next>current&&current<SERVICE_END&&next>SERVICE_START)return Math.min(next,Math.max(current,SERVICE_START)+step);
   if(next<current&&current>SERVICE_START&&next<SERVICE_END)return Math.max(next,Math.min(current,SERVICE_END)-step);
   return next;
@@ -67,17 +63,23 @@ function jump(p){if(reduced){chapters[p<.2?0:p<.7?1:2].scrollIntoView({behavior:
 document.querySelectorAll('[data-jump]').forEach(b=>b.addEventListener('click',()=>jump(Number(b.dataset.jump))));
 $('.skip').addEventListener('click',e=>{if(!reduced){e.preventDefault();jump(.94);setTimeout(()=>document.querySelector('.service button').focus({preventScroll:true}),900);}});
 document.querySelectorAll('.brand,.footer a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();jump(0);}));
-function chooseMethod(button){
+function chooseMethod(button,pinned=false){
   method=button.closest('.service').dataset.method;
-  if(state.progress>=.76)inspectionRequested=true;
+  if(state.progress>=.76){
+    const trainArrived=state.progress>=SERVICE_START+(SERVICE_END-SERVICE_START)*SERVICE_ARRIVAL;
+    if(pinned||trainArrived){inspectionRequested=true;inspectionHoverPending=false;if(pinned)inspectionPinned=true;}
+    else inspectionHoverPending=true;
+  }
   document.querySelectorAll('.service').forEach(row=>{const active=row.dataset.method===method;row.classList.toggle('is-open',active);row.querySelector('button').setAttribute('aria-expanded',String(active));row.querySelector('.service-detail').hidden=!active;});
   measureMobileLayout();
 }
 document.querySelectorAll('.service button').forEach(button=>{
-  button.addEventListener('click',()=>chooseMethod(button));
-  button.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch'&&!reduced&&width>700&&state.progress>.87&&performance.now()-lastScrollTime>150&&Math.abs(nativeProgress()-state.progress)<.002)chooseMethod(button);});
-  button.addEventListener('focus',()=>chooseMethod(button));
+  button.addEventListener('click',()=>chooseMethod(button,true));
+  button.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch'&&!reduced&&width>700&&state.progress>=.76&&performance.now()-lastScrollTime>150&&Math.abs(nativeProgress()-state.progress)<.002)chooseMethod(button);});
+  button.addEventListener('focus',()=>chooseMethod(button,true));
 });
+$('.services').addEventListener('pointerleave',e=>{if(e.pointerType!=='touch'){inspectionHoverPending=false;if(!inspectionPinned)inspectionRequested=false;}});
+$('.services').addEventListener('focusout',e=>{if(!e.currentTarget.contains(e.relatedTarget)){inspectionPinned=false;inspectionRequested=false;inspectionHoverPending=false;}});
 function trackPointer(e){
   const r=stage.getBoundingClientRect();pointer.px=e.clientX-r.left;pointer.py=e.clientY-r.top;
   pointer.x=pointer.px/width-.5;pointer.y=pointer.py/height-.5;
@@ -205,6 +207,8 @@ function measureMobileLayout(){
     const copy=$(selector);return copy.offsetTop+copy.offsetHeight+(i===2?reserve:0)+14;
   });
   mobileBottom=height-$('.stage-bottom').offsetHeight-12;
+  const whatsapp=$('.whatsapp-home');
+  mobileTrainRight=whatsapp?Math.min(width-14,whatsapp.getBoundingClientRect().left-10):width-78;
 }
 function resize(){width=stage.clientWidth;height=stage.clientHeight;measureScroll();if(!renderer)return;applyRenderSize();pieces.forEach(piece=>{piece.shadow.style.width=`${width*.3}px`;piece.shadow.style.height=`${width*.096}px`;});camera.aspect=width/height;camera.updateProjectionMatrix();shared.lensRadius.value=width<=700?52:72;measureMobileLayout();lastProgress=-1;}
 window.addEventListener('resize',()=>{
@@ -221,11 +225,15 @@ function setChapter(index){if(index===activeChapter)return;activeChapter=index;s
 function updateUI(p){
   if(reduced)return;
   const light=smooth(.13,.34,p),red=smooth(.64,.84,p);
+  // Let the sculpture clear the new left-hand copy before its text fades in.
+  // Portrait phones retain their existing stacked timing.
+  const sideBySide=width>700||(width>height&&height<=500);
+  const serviceEntry=sideBySide?.75:.72,serviceReady=sideBySide?.85:.86;
   $('.panel-light').style.transform=`translateY(${(1-light)*100}%)`;
   $('.panel-red').style.transform=`translateY(${(1-red)*100}%)`;
   stage.dataset.theme=p<.32?'dark':p<.82?'light':'red';
-  const opacity=[1-smooth(.10,.30,p),smooth(.20,.34,p)*(1-smooth(.67,.82,p)),smooth(.72,.86,p)];
-  chapters.forEach((c,i)=>{c.style.opacity=opacity[i];c.style.visibility=opacity[i]>.001?'visible':'hidden';const offset=i===0?-smooth(.1,.25,p)*45:i===1?(1-smooth(.28,.38,p))*40-smooth(.63,.76,p)*35:(1-smooth(.76,.86,p))*40;c.querySelector('.chapter-copy').style.transform=`translateY(${offset}px)`;});
+  const opacity=[1-smooth(.10,.30,p),smooth(.20,.34,p)*(1-smooth(.64,.72,p)),smooth(serviceEntry,serviceReady,p)];
+  chapters.forEach((c,i)=>{c.style.opacity=opacity[i];c.style.visibility=opacity[i]>.001?'visible':'hidden';const offset=i===0?-smooth(.1,.25,p)*45:i===1?(1-smooth(.28,.38,p))*40-smooth(.63,.76,p)*35:(1-smooth(serviceEntry+.04,serviceReady,p))*40;c.querySelector('.chapter-copy').style.transform=`translateY(${offset}px)`;});
   const tracks=document.querySelectorAll('.progress-track i');tracks[0].style.transform=`scaleX(${clamp(p/.46)})`;tracks[1].style.transform=`scaleX(${clamp((p-.46)/.48)})`;
   const lightTheme=p>=.32&&p<.82;shared.gridColor.value.set(...(lightTheme?[.18,.27,.32]:[.75,.84,.9]));
   setChapter(p<.28?0:p<.76?1:2);
@@ -238,6 +246,8 @@ const assemblyPoses={
   phone:[[.50,.72,.145,.15,-.60,.25],[.48,.67,.089,.12,-.40,-.18]]
 };
 const assemblyPosition=new THREE.Vector3(),assemblyQuaternion=new THREE.Quaternion(),localQuaternion=new THREE.Quaternion(),targetQuaternion=new THREE.Quaternion(),targetEuler=new THREE.Euler(),localPosition=new THREE.Vector3(),finalPosition=new THREE.Vector3();
+const serviceTurnQuaternion=new THREE.Quaternion();
+const serviceTrain=createServiceTrain();
 // Additive intro perspective: zero at both endpoints, outside the despiece transforms.
 const introAxis=new THREE.Vector3(0,1,0),introQuaternion=new THREE.Quaternion();
 const rollAxis=new THREE.Vector3(1,0,0),rollQuaternion=new THREE.Quaternion();
@@ -285,13 +295,14 @@ function frame(time){
   if(dx!==lightX){stage.style.setProperty('--light-dx',`${dx}px`);lightX=dx;}
   if(dy!==lightY){stage.style.setProperty('--light-dy',`${dy}px`);lightY=dy;}
   const a=smooth(.13,.39,p),b=smooth(SERVICE_START,SERVICE_END,p);
-  // One scroll clock: a short camera move, then three mechanical separations.
+  // One shared rail with three following offsets; only arrivals fan out.
   const serviceTime=clamp((p-SERVICE_START)/(SERVICE_END-SERVICE_START));
   // An explicit service selection can finish the inspection framing before scroll
   // reaches the end. Release it smoothly on the way back; never affect the intro.
-  if(p<SERVICE_START)inspectionRequested=false;
+  if(p<SERVICE_START){inspectionRequested=false;inspectionPinned=false;inspectionHoverPending=false;}
+  if(inspectionHoverPending&&serviceTime>=SERVICE_ARRIVAL){inspectionRequested=true;inspectionHoverPending=false;}
   inspectionReveal=mix(inspectionReveal,inspectionRequested?1:0,1-Math.exp(-dt*5));
-  const inspectionBlend=inspectionReveal*smooth(SERVICE_START,.76,p);
+  const inspectionBlend=inspectionReveal*smooth(SERVICE_ARRIVAL,1,serviceTime);
   const worldHeight=2*Math.tan(THREE.MathUtils.degToRad(17))*9,worldWidth=worldHeight*width/height;
   const config=phone?assemblyPoses.phone:assemblyPoses.desktop,selectedIndex=pieces.findIndex(piece=>piece.key===method);
   const common=config[0].map((v,i)=>mix(v,config[1][i],a)),commonScale=worldWidth*common[2];
@@ -314,19 +325,16 @@ function frame(time){
   camera.position.set((phone?.10:.18)*perspective+trackingX,trackingY,cameraDistance);
   camera.lookAt(trackingX,trackingY,0);
   if(p>SERVICE_START){
-    // Move once, before release; hold the resulting perspective without orbiting.
-    const follow=(phone||landscape)?.5:1;
-    const cameraStep=smooth(0,.16,serviceTime);
-    camera.position.set(.65*follow*cameraStep,.08*follow*cameraStep,9+.25*follow*cameraStep);
-    camera.lookAt(.08*follow*cameraStep,0,0);
+    positionServiceCamera(camera,mix(serviceTime,1,inspectionBlend),width<=950,!phone);
   }
   camera.updateMatrixWorld();
   opening=smooth(.17,.48,p);
   // The tube's existing internal opening is held; only the three outer groups move.
   const shellOpening=opening;
   shellRear.position.x=-.78*shellOpening;shellFront.position.x=1.05*shellOpening;
+  if(p>SERVICE_START)serviceTrain.update(serviceTime,assemblyPosition,assemblyQuaternion,commonScale,worldWidth,worldHeight,!phone);
   pieces.forEach((piece,i)=>{
-    piece.selected=mix(piece.selected,piece.key===method?1:0,1-Math.exp(-dt*5));
+    piece.selected=mix(piece.selected,inspectionRequested&&piece.key===method?1:0,1-Math.exp(-dt*5));
     const selected=piece.selected,side=(i<selectedIndex?i:i-1)<=0?.15:.85;
     piece.secondaryX=mix(piece.secondaryX??side,side,1-Math.exp(-dt*5));
     // A focus slot plus two separated inspection slots, whichever method is selected.
@@ -337,30 +345,51 @@ function frame(time){
       [mix(i===1?.02:.20,i===2&&!shortPhone?.90:.72,lane),i===1?.72:i===2?(shortPhone?.87:.79):.88,i===0?.039:.038]:
       [mix(landscape&&i===1?.02:.17,i===2?(landscape?.48:.54):.50,lane),i===0?.82:i===1?(landscape?.30:.32):.70,i===0?.027:.030];
     const focus=phone?[.46,shortPhone?.70:.73,i===0?.088:i===1?.135:.125]:[.255,landscape?(i===0?.43:.38):(i===0?.58:.53),i===0?(landscape?.045:.055):i===1?.090:.085];
-    const finalPose=[mix(secondary[0],focus[0],selected),mix(secondary[1],focus[1],selected),mix(secondary[2],focus[2],selected),i===0?.04:-.2,i===0?-.35:.37,i===0?-.24:-.16];
+    // Keep the existing first-plane interaction on the same side as the models.
+    if(!phone){secondary[0]=1-secondary[0];focus[0]=1-focus[0];}
+    const rest=constellation[phone?'phone':landscape?'landscape':'desktop'][piece.key];
+    const finalPose=[
+      mix(rest[0],mix(secondary[0],focus[0],selected),inspectionBlend),
+      mix(rest[1],mix(secondary[1],focus[1],selected),inspectionBlend),
+      mix(rest[2],mix(secondary[2],focus[2],selected),inspectionBlend),
+      mix(rest[3],i===0?.04:-.2,inspectionBlend),mix(rest[4],i===0?-.35:.37,inspectionBlend),mix(rest[5],i===0?-.24:-.16,inspectionBlend)
+    ];
     const localX=i===0?0:i===1?mix(-2.42,-4.0,opening):mix(2.36,4.25,opening);
     localPosition.set(localX,0,0).multiplyScalar(commonScale).applyQuaternion(assemblyQuaternion).add(assemblyPosition);
     // Separate physical depth planes also during option changes. Compensating
     // X/Y and scale preserves the intended screen-space composition at z != 0.
-    const profile=serviceProfiles[i],finalDepth=profile.depth+piece.hover*.1;
+    const profile=serviceFlights[piece.key],finalDepth=profile.depth+piece.hover*.1;
     const depthScale=(9-finalDepth)/9;
     finalPosition.set((finalPose[0]-.5)*worldWidth*depthScale,(.5-finalPose[1])*worldHeight*depthScale,finalDepth);
-    // One straight 3D segment per piece, eased only at its mechanical end stops.
-    const drift=mix(smooth(profile.start,profile.end,serviceTime),1,inspectionBlend);
-    piece.group.position.copy(localPosition).lerp(finalPosition,drift);
+    const flight=piece.serviceFlight??=serviceTrain.createState();
+    let drift=0;
+    if(p>SERVICE_START)drift=serviceTrain.sample(piece.key,inspectionBlend,localPosition,finalPosition,piece.group.position,flight,camera);
+    else{piece.group.position.copy(localPosition);flight.dock=0;flight.rotation.identity();}
+    const weightless=smooth(.97,1,flight.dock)*(1-.55*inspectionReveal)*(1-.8*selected);
+    const phase=elapsed*.58+profile.phase;
+    piece.group.position.x+=Math.cos(phase*.71)*worldWidth*.003*weightless;
+    piece.group.position.y+=Math.sin(phase)*worldHeight*.008*weightless;
     const finalScale=worldWidth*finalPose[2]*depthScale*(1+piece.hover*.035);
-    piece.group.scale.setScalar(mix(commonScale,finalScale,drift));
+    const currentDepth=camera.position.z-piece.group.position.z;
+    const startScale=commonScale*currentDepth/(camera.position.z-localPosition.z);
+    const arrivedScale=finalScale*currentDepth/(camera.position.z-finalDepth);
+    const cruiseScale=1-(shortPhone?.44:.35)*smooth(0,.20,serviceTime)*(1-flight.dock);
+    piece.group.scale.setScalar(p>SERVICE_START?mix(startScale,arrivedScale,drift)*cruiseScale:commonScale);
     localQuaternion.setFromEuler(targetEuler.set(0,i===0?0:i===1?-Math.PI/2:Math.PI/2-opening*.18,0));
     piece.group.quaternion.copy(assemblyQuaternion).multiply(localQuaternion);
+    if(p>SERVICE_START)piece.group.quaternion.premultiply(flight.rotation);
     targetQuaternion.setFromEuler(targetEuler.set(finalPose[3]+smoothedPointer.y*.14,finalPose[4]+smoothedPointer.x*.18,finalPose[5]));
-    // Advance along the original shortest rotation, never overshoot or rewind.
-    piece.group.quaternion.slerp(targetQuaternion,drift);
-    piece.shadowRotation=mix(common[5],finalPose[5],drift);
+    // Follow the rail's tangent; adopt the individual pose only while docking.
+    piece.group.quaternion.slerp(targetQuaternion,flight.dock);
+    serviceTurnQuaternion.setFromEuler(targetEuler.set(Math.sin(phase)*.025*weightless,Math.cos(phase*.8)*.025*weightless,Math.sin(phase*.7)*.025*weightless));
+    piece.group.quaternion.multiply(serviceTurnQuaternion);
+    piece.shadowRotation=mix(common[5],finalPose[5],flight.dock);
   });
   if(mobileFraming&&(phone||landscape)){
     const top=phone?mix(mix(mobileCopyBottom[0],mobileCopyBottom[1],a),mobileCopyBottom[2],b):$('.header').offsetHeight+10;
     const softReserve=Math.max(smooth(.13,.17,p)*(1-smooth(.35,.39,p)),smooth(SERVICE_START,SERVICE_START+.04,p)*(1-smooth(SERVICE_END-.04,SERVICE_END,p)));
-    mobileFraming(camera,width,height,{top:top,bottom:mobileBottom,softReserve},shellOpening);
+    const trainReserve=phone?smooth(0,.12,serviceTime)*(1-smooth(SERVICE_ARRIVAL,1,serviceTime)):0;
+    mobileFraming(camera,width,height,{top:top,bottom:mobileBottom,right:mix(width-14,mobileTrainRight,trainReserve),softReserve},shellOpening);
   }
   pieces.forEach((piece,i)=>{
     // Shadows follow the actual component centres, including the opening.
@@ -368,7 +397,7 @@ function frame(time){
     const sx=(localPosition.x*.5+.5)*width,sy=(-localPosition.y*.5+.5)*height,scale=piece.group.scale.x/worldWidth;
     const shadowWidth=width*scale*(i===0?4.4:2.15);
     const shadowX=sx+shadowWidth*.09-smoothedPointer.x*12,shadowY=sy+width*scale*(i===0?1.05:1.3);
-    piece.shadow.style.opacity=String(i===0?1:mix(.2,1,opening));
+    piece.shadow.style.opacity=String((i===0?1:mix(.2,1,opening))*(1-.78*b));
     piece.shadow.style.transform=`translate(${shadowX}px,${shadowY}px) rotate(${i===0?-piece.shadowRotation*24:0}deg) scale(${shadowWidth/(width*.3)}) translate(-50%,-50%)`;
   });
 

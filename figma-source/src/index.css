@@ -1345,9 +1345,6 @@ footer { position: relative; z-index: 10; }
 .ndt-surface .tech { border-top-color: var(--line); }
 .ndt-surface { padding-bottom: 60px; }
 .tech-head h3 { margin: 0 0 18px; font-family: "Barlow Condensed", sans-serif; font-size: 34px; font-weight: 600; line-height: 1; text-transform: uppercase; }
-.tech-diagram { display: block; width: 100%; max-width: 250px; color: rgba(255,255,255,.4); }
-.ndt-surface .tech-diagram { color: rgba(11,18,23,.4); }
-.tech-diagram .accent { stroke: var(--red); }
 .tech-cell h4 { margin: 0 0 14px; color: var(--red); font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
 .tech-cell p, .tech-cell li { margin: 0; font-size: 13px; line-height: 1.6; color: rgba(255,255,255,.75); }
 .ndt-surface .tech-cell p, .ndt-surface .tech-cell li { color: #3d4448; }
@@ -1355,8 +1352,6 @@ footer { position: relative; z-index: 10; }
 .tech-cell li { position: relative; padding-left: 16px; }
 .tech-cell li::before { content: ""; position: absolute; top: .7em; left: 0; width: 7px; height: 1px; background: var(--red); }
 .tech { transition: background 300ms; }
-.tech:hover .tech-diagram { color: rgba(255,255,255,.7); }
-.ndt-surface .tech:hover .tech-diagram { color: rgba(11,18,23,.7); }
 
 .ndt-cta { padding: 96px 0; }
 .ndt-cta h2 { max-width: 520px; margin: 14px 0 16px; }
@@ -1366,7 +1361,6 @@ footer { position: relative; z-index: 10; }
   .tech { grid-template-columns: 1fr 1fr; }
   .tech-head { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
   .tech-head h3 { margin: 0; }
-  .tech-diagram { max-width: 200px; }
 }
 @media (max-width: 900px) {
   .ndt-hero-grid { grid-template-columns: 1fr; gap: 36px; padding-top: 36px; }
@@ -1445,27 +1439,28 @@ a.solution-item:hover i::before { width: 19px; }
 .svc-code strong { font-size: 28px; }
 
 /* inspecciones */
+.ndt-page .service-icon { display: block; flex: none; width: 28px; height: 28px; color: inherit; }
+.ndt-page .service-icon .accent { stroke: var(--red); }
+.ndt-page .service-kicker { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; color: rgba(255,255,255,.8); }
+.ndt-page .service-kicker .eyebrow { margin: 0; }
 .insp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
 .insp-card { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 30px 26px 28px; background: #fafbfb; transition: background 250ms, color 250ms; }
-.insp-icon { width: 64px; height: 64px; color: var(--ink); transition: color 250ms; }
+.ndt-page .insp-icon { width: 30px; height: 30px; color: var(--ink); transition: color 250ms; }
 .insp-icon .accent { stroke: var(--red); transition: stroke 250ms; }
 .insp-unit { position: absolute; top: 30px; right: 26px; color: var(--red); font-size: 11px; font-weight: 700; letter-spacing: .12em; transition: color 250ms; }
-.insp-card h3 { margin: 14px 0 0; font-family: "Barlow Condensed", sans-serif; font-size: 28px; font-weight: 600; line-height: 1; text-transform: uppercase; }
+.insp-card h3 { margin: 6px 0 0; font-family: "Barlow Condensed", sans-serif; font-size: 28px; font-weight: 600; line-height: 1; text-transform: uppercase; }
 .insp-card p { margin: 0; color: #52595d; font-size: 13px; line-height: 1.55; transition: color 250ms; }
 .insp-card small { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); color: #747a7e; font-size: 11px; transition: color 250ms, border-color 250ms; }
 .insp-card:hover { background: var(--ink); color: white; }
-.insp-card:hover .insp-icon { color: white; }
+.ndt-page .insp-card:hover .insp-icon { color: white; }
 .insp-card:hover .insp-icon .accent { stroke: #ff5a64; }
 .insp-card:hover p, .insp-card:hover small { color: rgba(255,255,255,.75); }
 .insp-card:hover small { border-color: rgba(255,255,255,.18); }
-.insp-weld-top { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 64px; margin-bottom: 72px; }
-.insp-weld-copy .lead { max-width: 460px; margin-top: 16px; }
+.insp-weld-top { display: grid; grid-template-columns: minmax(0, 1fr); margin-bottom: 48px; }
+.insp-weld-copy .lead { max-width: 640px; margin-top: 16px; }
 .insp-cert { display: grid; gap: 4px; width: max-content; max-width: 100%; margin-top: 32px; padding: 18px 26px; border-left: 3px solid var(--red); background: rgba(255,255,255,.05); }
 .insp-cert strong { font-family: "Barlow Condensed", sans-serif; font-size: 34px; font-weight: 600; line-height: 1; text-transform: uppercase; }
 .insp-cert span { color: rgba(255,255,255,.7); font-size: 12px; }
-.insp-weld-image { position: relative; height: 340px; overflow: hidden; }
-.insp-weld-image img { width: 100%; height: 100%; object-fit: cover; }
-.insp-weld-image::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); pointer-events: none; }
 .insp-stages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; border-top: 1px solid rgba(255,255,255,.14); padding-top: 34px; }
 .insp-stage h3 { margin: 10px 0 14px; font-family: "Barlow Condensed", sans-serif; font-size: 28px; font-weight: 600; text-transform: uppercase; }
 .insp-stage ul { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
@@ -1474,8 +1469,6 @@ a.solution-item:hover i::before { width: 19px; }
 .insp-hero h1 em { font-style: normal; }
 @media (max-width: 1000px) { .insp-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 900px) {
-  .insp-weld-top { grid-template-columns: 1fr; gap: 36px; margin-bottom: 48px; }
-  .insp-weld-image { height: 260px; }
   .insp-stages { grid-template-columns: 1fr; gap: 28px; }
 }
 @media (max-width: 560px) { .insp-grid { grid-template-columns: 1fr; } }
@@ -1493,7 +1486,7 @@ a.solution-item:hover i::before { width: 19px; }
   display: grid; grid-template-columns: 22px 1fr 22px; align-items: center; gap: 18px; width: 100%; min-height: 72px;
   padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
 }
-.acc-icon { color: var(--red); }
+.ndt-page .acc-icon { width: 22px; height: 22px; color: inherit; }
 .acc-item h3 span { font-family: "Barlow Condensed", sans-serif; font-size: 28px; font-weight: 600; text-transform: uppercase; letter-spacing: .01em; transition: color 200ms, transform 240ms; }
 .acc-item h3 button:hover span, .acc-item.is-open h3 span { color: var(--red); }
 .acc-item h3 button:hover span { transform: translateX(4px); }
@@ -1505,11 +1498,7 @@ a.solution-item:hover i::before { width: 19px; }
 .acc-item.is-open .acc-panel { grid-template-rows: 1fr; }
 .acc-panel-inner { min-height: 0; overflow: hidden; display: grid; gap: 28px; }
 .acc-item.is-open .acc-panel-inner { padding: 6px 0 36px 40px; }
-.acc-media { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.acc-diagram { display: grid; place-items: center; min-height: 170px; padding: 18px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.03); }
-.ndt-surface .acc-diagram { border-color: var(--line); background: rgba(11,18,23,.02); }
-.acc-diagram .tech-diagram { max-width: 230px; }
-.acc-photo { position: relative; min-height: 170px; overflow: hidden; }
+.acc-photo { position: relative; width: 100%; height: clamp(170px, 24vw, 280px); overflow: hidden; }
 .acc-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .acc-text { display: grid; gap: 24px; }
 .acc-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
@@ -1520,5 +1509,5 @@ a.solution-item:hover i::before { width: 19px; }
 @media (max-width: 560px) {
   .acc-item h3 span { font-size: 22px; }
   .acc-item.is-open .acc-panel-inner { padding-left: 0; }
-  .acc-media, .acc-cols { grid-template-columns: 1fr; }
+  .acc-cols { grid-template-columns: 1fr; }
 }

@@ -1,72 +1,36 @@
-import { ReactNode } from "react";
 import { Footer, Header, useReveal } from "./shared";
+import ServiceIcon, { type ServiceIconName } from "./ServiceIcon";
 import laserInspection from "./assets/laser-inspection.png";
-import pipeMetal from "./assets/pipe-metal.png";
 import refineryDusk from "./assets/refinery-dusk.png";
 
-const Icon = ({ children }: { children: ReactNode }) => (
-  <svg className="insp-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    {children}
-  </svg>
-);
-
-const measures = [
+const measures: { title: string; unit: string; text: string; use: string; icon: ServiceIconName }[] = [
   {
     title: "Espesores por ultrasonido",
     unit: "mm",
     text: "Medición del espesor remanente de chapas, cañerías y recipientes desde una sola cara, sin cortar ni parar el equipo.",
     use: "Control de corrosión y desgaste",
-    icon: (
-      <Icon>
-        <rect x="24" y="6" width="16" height="10" />
-        <path d="M32 16v6" />
-        <rect x="10" y="22" width="44" height="22" />
-        <path d="M18 28a14 14 0 0 0 28 0" opacity=".5" />
-        <path d="M58 22v22M55 22h6M55 44h6" className="accent" />
-        <path d="M10 54h44" opacity=".5" />
-      </Icon>
-    ),
+    icon: "thickness",
   },
   {
     title: "Capa de pintura",
     unit: "µm",
     text: "Medición del espesor de recubrimientos sobre acero y otros sustratos, para verificar lo especificado.",
     use: "Sistemas de pintura y protección",
-    icon: (
-      <Icon>
-        <rect x="8" y="40" width="48" height="14" />
-        <path d="M8 34h48M8 28h48" />
-        <path d="M8 28h48v6H8z" className="accent" />
-        <path d="M32 6v16M26 16l6 6 6-6" />
-      </Icon>
-    ),
+    icon: "coating",
   },
   {
     title: "Rugosidad",
     unit: "Ra / Rz",
     text: "Medición del perfil superficial para confirmar que la preparación cumple el valor requerido.",
     use: "Preparación de superficie",
-    icon: (
-      <Icon>
-        <path d="M6 36l6-8 5 10 5-14 5 16 5-10 5 8 5-12 5 10 5-6" />
-        <path d="M6 36h52" className="accent" strokeDasharray="3 3" />
-        <path d="M6 54h52" opacity=".5" />
-      </Icon>
-    ),
+    icon: "roughness",
   },
   {
     title: "Dureza in-situ",
     unit: "HB · HV · HRC",
     text: "Determinación de la dureza del material directamente sobre el componente instalado, sin extraer probetas.",
     use: "Verificación de material y soldaduras",
-    icon: (
-      <Icon>
-        <path d="M32 6v18" />
-        <path d="M26 24h12l-6 14z" className="accent" />
-        <rect x="8" y="38" width="48" height="16" />
-        <path d="M28 38l4 6 4-6" opacity=".6" />
-      </Icon>
-    ),
+    icon: "hardness",
   },
 ];
 
@@ -130,7 +94,7 @@ export default function InspectionsPage({ onConsult }: { onConsult: () => void }
           <div className="insp-grid">
             {measures.map((item) => (
               <article className="insp-card" key={item.title}>
-                {item.icon}
+                <ServiceIcon name={item.icon} className="insp-icon" />
                 <span className="insp-unit">{item.unit}</span>
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
@@ -146,7 +110,10 @@ export default function InspectionsPage({ onConsult }: { onConsult: () => void }
         <div className="page-width">
           <div className="insp-weld-top">
             <div className="insp-weld-copy">
-              <p className="eyebrow red">Inspecciones de soldadura</p>
+              <div className="service-kicker">
+                <ServiceIcon name="certified" />
+                <p className="eyebrow red">Inspecciones de soldadura</p>
+              </div>
               <h2>
                 Inspectores <em>certificados.</em>
               </h2>
@@ -158,9 +125,6 @@ export default function InspectionsPage({ onConsult }: { onConsult: () => void }
                 <strong>IRAM IAS U 500-169</strong>
                 <span>Inspectores de soldadura certificados</span>
               </div>
-            </div>
-            <div className="insp-weld-image">
-              <img className="ndt-parallax" src={pipeMetal} alt="" />
             </div>
           </div>
           <div className="insp-stages">

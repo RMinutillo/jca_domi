@@ -1,95 +1,33 @@
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import { Footer, Header, useReveal } from "./shared";
+import ServiceIcon, { type ServiceIconName } from "./ServiceIcon";
 import laserInspection from "./assets/laser-inspection.png";
 import refineryDusk from "./assets/refinery-dusk.png";
-import pipeMetal from "./assets/pipe-metal.png";
-import methodMetal from "./assets/method-metal.png";
-import heroMetal from "./assets/hero-metal.png";
 import probe from "./assets/probe.png";
-
-const Diagram = ({ children }: { children: ReactNode }) => (
-  <svg className="tech-diagram" viewBox="0 0 240 130" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    {children}
-  </svg>
-);
-
-const diagrams: Record<string, ReactNode> = {
-  radio: (
-    <Diagram>
-      <circle cx="120" cy="14" r="4" className="accent" />
-      <path d="M120 18 74 62M120 18v44M120 18l46 44M120 18 62 62M120 18l58 44" opacity=".5" />
-      <rect x="40" y="62" width="160" height="26" />
-      <circle cx="132" cy="75" r="4" className="accent" />
-      <path d="M40 112h160M40 108v8M200 108v8" opacity=".6" />
-      <path d="M132 88v20" strokeDasharray="2 3" className="accent" />
-    </Diagram>
-  ),
-  ultra: (
-    <Diagram>
-      <rect x="92" y="22" width="36" height="16" />
-      <path d="M110 38v-8" opacity=".5" />
-      <rect x="40" y="38" width="160" height="70" />
-      <path d="M96 50a14 14 0 0 0 28 0M90 62a20 20 0 0 0 40 0" opacity=".5" />
-      <path d="M150 88 128 62" className="accent" />
-      <circle cx="152" cy="90" r="4" className="accent" />
-      <path d="M136 76a10 10 0 0 1-12-6" opacity=".5" />
-    </Diagram>
-  ),
-  penetrant: (
-    <Diagram>
-      <rect x="30" y="56" width="180" height="50" />
-      <path d="M100 56l8 28 8-28" className="accent" />
-      <path d="M94 56a4 4 0 0 1 8-8M118 56a4 4 0 0 0-8-8" opacity=".5" />
-      <path d="M92 40c6-8 24-8 30 0" opacity=".5" />
-      <path d="M30 56h56M130 56h80" strokeWidth="2" opacity=".35" />
-    </Diagram>
-  ),
-  magnetic: (
-    <Diagram>
-      <rect x="30" y="56" width="180" height="40" />
-      <path d="M100 56l6 20 6-20" className="accent" />
-      <path d="M50 76h40M130 76h60" opacity=".6" />
-      <path d="M44 56c20-40 52-40 62 0M114 56c10-40 42-40 62 0" opacity=".4" />
-      <circle cx="109" cy="48" r="1.5" className="accent" />
-      <circle cx="104" cy="45" r="1.5" className="accent" />
-      <circle cx="114" cy="45" r="1.5" className="accent" />
-    </Diagram>
-  ),
-  visual: (
-    <Diagram>
-      <path d="M20 96h200" opacity=".6" />
-      <path d="M50 96c20-34 120-34 140 0" />
-      <circle cx="130" cy="58" r="30" className="accent" />
-      <path d="M152 80l26 26" className="accent" />
-      <path d="M96 96c10-14 52-14 62 0" opacity=".5" />
-    </Diagram>
-  ),
-};
 
 type Technique = {
   id: string;
   title: string;
-  diagram: keyof typeof diagrams;
   what: string;
   detects: string[];
   uses: string[];
-  photo: string;
+  icon: ServiceIconName;
+  photo?: string;
 };
 
 const volumetric: Technique[] = [
   {
     id: "radiografia",
+    icon: "radiography",
     title: "Radiografía y gammagrafía",
-    diagram: "radio",
     what: "Se atraviesa la pieza con radiación (rayos X o rayos gamma de una fuente sellada) y se registra la imagen en una película o detector digital. Las diferencias de espesor y densidad del material quedan reflejadas en la imagen.",
     detects: ["Porosidades e inclusiones de escoria", "Falta de fusión o de penetración", "Fisuras internas", "Variaciones de espesor por corrosión"],
     uses: ["Soldaduras de cañerías y recipientes a presión", "Fundiciones", "Tanques y calderas", "Estructuras metálicas"],
-    photo: pipeMetal,
   },
   {
     id: "ultrasonido",
+    icon: "ultrasound",
     title: "Ultrasonido",
-    diagram: "ultra",
     what: "Un palpador emite ondas sonoras de alta frecuencia que viajan por el material y se reflejan ante cualquier discontinuidad. El equipo interpreta el eco para ubicar y dimensionar la indicación.",
     detects: ["Fisuras y laminaciones", "Falta de fusión e inclusiones", "Pérdida de espesor", "Medición de espesores remanentes"],
     uses: ["Soldaduras en planta y en campo", "Chapas, forjados y ejes", "Recipientes y cañerías en servicio", "Control de corrosión"],
@@ -100,26 +38,24 @@ const volumetric: Technique[] = [
 const superficial: Technique[] = [
   {
     id: "liquidos",
+    icon: "penetrant",
     title: "Líquidos penetrantes",
-    diagram: "penetrant",
     what: "Se aplica un líquido de gran capacidad de penetración que ingresa en las aberturas de la superficie. Tras eliminar el excedente, un revelador lo hace visible y marca la discontinuidad.",
     detects: ["Fisuras abiertas a la superficie", "Poros y pliegues", "Discontinuidades en soldaduras"],
     uses: ["Aceros inoxidables y metales no ferrosos", "Soldaduras y fundiciones", "Piezas mecanizadas"],
-    photo: methodMetal,
   },
   {
     id: "particulas",
+    icon: "magnetic",
     title: "Partículas magnetizables",
-    diagram: "magnetic",
     what: "Se magnetiza la pieza y se aplican partículas ferromagnéticas. Ante una discontinuidad se produce una fuga de flujo que atrae y concentra las partículas, dibujando su contorno.",
     detects: ["Fisuras superficiales", "Discontinuidades subsuperficiales cercanas a la superficie", "Defectos de soldadura"],
     uses: ["Acero ferromagnético", "Ejes, engranajes y forjados", "Componentes de izaje"],
-    photo: heroMetal,
   },
   {
     id: "visual",
+    icon: "visual",
     title: "Inspección visual",
-    diagram: "visual",
     what: "Examen directo de la superficie, o asistido con lupas, boroscopios y calibres, según criterios de aceptación de las normas aplicables. Suele ser el primer paso de cualquier inspección.",
     detects: ["Socavaduras y desalineaciones", "Grietas y salpicaduras visibles", "Corrosión y deformaciones"],
     uses: ["Antes, durante y después de soldar", "Tanques, estructuras y equipos", "Verificación previa a otros ensayos"],
@@ -127,15 +63,8 @@ const superficial: Technique[] = [
   },
 ];
 
-const TechIcon = () => (
-  <svg className="acc-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <circle cx="10.5" cy="10.5" r="6.5" />
-    <path d="m15.5 15.5 5 5M10.5 7.5v6M7.5 10.5h6" />
-  </svg>
-);
-
 function TechAccordion({ items }: { items: Technique[] }) {
-  const [open, setOpen] = useState<string | null>(items[0].id);
+  const [open, setOpen] = useState<string | null>(null);
   return (
     <div className="acc-list">
       {items.map((tech) => {
@@ -145,23 +74,21 @@ function TechAccordion({ items }: { items: Technique[] }) {
             <h3>
               <button
                 type="button"
+                id={`${tech.id}-trigger`}
                 aria-expanded={isOpen}
                 aria-controls={`${tech.id}-panel`}
                 onClick={() => setOpen(isOpen ? null : tech.id)}
               >
-                <TechIcon />
+                <ServiceIcon name={tech.icon} className="acc-icon" />
                 <span>{tech.title}</span>
                 <i aria-hidden="true" />
               </button>
             </h3>
-            <div className="acc-panel" id={`${tech.id}-panel`} role="region">
+            <div className="acc-panel" id={`${tech.id}-panel`} role="region" aria-labelledby={`${tech.id}-trigger`} aria-hidden={!isOpen} inert={!isOpen}>
               <div className="acc-panel-inner">
-                <div className="acc-media">
-                  <div className="acc-diagram">{diagrams[tech.diagram]}</div>
-                  <div className="acc-photo">
-                    <img src={tech.photo} alt="" loading="lazy" />
-                  </div>
-                </div>
+                {tech.photo && <div className="acc-photo">
+                  <img src={tech.photo} alt="" loading="lazy" />
+                </div>}
                 <div className="acc-text">
                   <div className="tech-cell">
                     <h4>Qué es</h4>
