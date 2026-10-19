@@ -158,7 +158,7 @@ export function Footer() {
         <small>
           Desarrollado por <b>Growth</b>
         </small>
-        <small>© 2024 JCA &amp; Asociados. Todos los derechos reservados.</small>
+        <small>© 2026 JCA &amp; Asociados. Todos los derechos reservados.</small>
       </div>
     </footer>
   );
@@ -173,7 +173,9 @@ export function FloatingActions({ whatsappOnly = false }: { whatsappOnly?: boole
         </svg>
       </a>
       {!whatsappOnly && <a className="back-top" href="#top" onClick={(event) => { event.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }} aria-label="Volver arriba">
-        ↑
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 19V5m-6 6 6-6 6 6" />
+        </svg>
       </a>}
     </>
   );

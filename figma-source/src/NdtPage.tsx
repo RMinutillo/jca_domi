@@ -1,7 +1,7 @@
 import { useState, type MouseEvent } from "react";
 import { Footer, Header, useReveal } from "./shared";
 import ServiceIcon, { type ServiceIconName } from "./ServiceIcon";
-import laserInspection from "./assets/laser-inspection.png";
+import ndtHero from "./assets/ndt-weld-hero.png";
 import refineryDusk from "./assets/refinery-dusk.png";
 
 type Technique = {
@@ -134,7 +134,6 @@ export default function NdtPage({ onConsult }: { onConsult: () => void }) {
   useReveal(
     [
       ".ndt-hero .ndt-copy > *",
-      ".ndt-hero-image",
       ".ndt-intro .copy > *",
       ".ndt-facts li",
       ".ndt-block-head > *",
@@ -156,6 +155,7 @@ export default function NdtPage({ onConsult }: { onConsult: () => void }) {
   return (
     <main className="ndt-page ndt-detail-page">
       <section className="ndt-hero dark-section">
+        <img className="ndt-hero-backdrop" src={ndtHero} alt="" aria-hidden="true" fetchPriority="high" />
         <Header />
         <div className="page-width">
           <nav className="breadcrumb" aria-label="Ruta">
@@ -175,9 +175,6 @@ export default function NdtPage({ onConsult }: { onConsult: () => void }) {
             <a className="btn btn-light" href="#introduccion" onClick={navigateSection}>
               Explorar métodos ↓
             </a>
-          </div>
-          <div className="ndt-hero-image">
-            <img className="ndt-parallax" src={laserInspection} alt="" />
           </div>
         </div>
       </section>
@@ -259,6 +256,23 @@ export default function NdtPage({ onConsult }: { onConsult: () => void }) {
               Consultar
             </a>
           </div>
+          <nav className="ndt-related-services" aria-label="Explorá otros servicios">
+            <p className="eyebrow">Conocé también nuestros otros servicios</p>
+            <a href="#/servicios-complementarios-ndt">
+              <span>
+                <strong>Servicios complementarios NDT</strong>
+                <small>Desarrollo de procedimientos y asesoramiento técnico especializado.</small>
+              </span>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6" /></svg>
+            </a>
+            <a href="#/inspecciones">
+              <span>
+                <strong>Inspecciones</strong>
+                <small>Servicios de medición, control e inspección especializada.</small>
+              </span>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6" /></svg>
+            </a>
+          </nav>
         </div>
       </section>
 
