@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { Footer, Header, useReveal } from "./shared";
 import ServiceIcon, { type ServiceIconName } from "./ServiceIcon";
 import laserInspection from "./assets/laser-inspection.png";
 import refineryDusk from "./assets/refinery-dusk.png";
-import probe from "./assets/probe.png";
 
 type Technique = {
   id: string;
@@ -12,7 +11,7 @@ type Technique = {
   detects: string[];
   uses: string[];
   icon: ServiceIconName;
-  photo?: string;
+  secondary?: { title: string; items?: string[]; text?: string }[];
 };
 
 const volumetric: Technique[] = [
@@ -20,18 +19,17 @@ const volumetric: Technique[] = [
     id: "radiografia",
     icon: "radiography",
     title: "Radiografía y gammagrafía",
-    what: "Se atraviesa la pieza con radiación (rayos X o rayos gamma de una fuente sellada) y se registra la imagen en una película o detector digital. Las diferencias de espesor y densidad del material quedan reflejadas en la imagen.",
-    detects: ["Porosidades e inclusiones de escoria", "Falta de fusión o de penetración", "Fisuras internas", "Variaciones de espesor por corrosión"],
-    uses: ["Soldaduras de cañerías y recipientes a presión", "Fundiciones", "Tanques y calderas", "Estructuras metálicas"],
+    what: "Mediante rayos X o gamma se obtienen imágenes del interior de una pieza. Las diferencias en la absorción de radiación permiten identificar variaciones de densidad, espesor y posibles discontinuidades internas.",
+    detects: ["Porosidades e inclusiones.", "Discontinuidades en soldaduras, como faltas de penetración o fusión, según su orientación.", "Fisuras detectables según su tamaño y orientación.", "Variaciones de espesor o densidad."],
+    uses: ["Soldaduras de distintos materiales y espesores.", "Componentes fundidos.", "Componentes aeronáuticos.", "Recipientes sometidos a presión.", "Estructuras y puentes."],
   },
   {
     id: "ultrasonido",
     icon: "ultrasound",
     title: "Ultrasonido",
-    what: "Un palpador emite ondas sonoras de alta frecuencia que viajan por el material y se reflejan ante cualquier discontinuidad. El equipo interpreta el eco para ubicar y dimensionar la indicación.",
-    detects: ["Fisuras y laminaciones", "Falta de fusión e inclusiones", "Pérdida de espesor", "Medición de espesores remanentes"],
-    uses: ["Soldaduras en planta y en campo", "Chapas, forjados y ejes", "Recipientes y cañerías en servicio", "Control de corrosión"],
-    photo: laserInspection,
+    what: "Utiliza ondas sonoras de alta frecuencia que se propagan por el material y generan ecos al encontrar discontinuidades o cambios en sus características internas. Estos ecos permiten localizar y evaluar las indicaciones detectadas.",
+    detects: ["Fisuras y laminaciones.", "Discontinuidades internas en soldaduras.", "Falta de fusión e inclusiones.", "Otras discontinuidades internas, según el material y la técnica aplicada."],
+    uses: ["Componentes mecánicos, como engranajes y ejes.", "Soldaduras de distintas geometrías.", "Componentes laminados.", "Componentes forjados."],
   },
 ];
 
@@ -40,26 +38,31 @@ const superficial: Technique[] = [
     id: "liquidos",
     icon: "penetrant",
     title: "Líquidos penetrantes",
-    what: "Se aplica un líquido de gran capacidad de penetración que ingresa en las aberturas de la superficie. Tras eliminar el excedente, un revelador lo hace visible y marca la discontinuidad.",
-    detects: ["Fisuras abiertas a la superficie", "Poros y pliegues", "Discontinuidades en soldaduras"],
-    uses: ["Aceros inoxidables y metales no ferrosos", "Soldaduras y fundiciones", "Piezas mecanizadas"],
+    what: "Consiste en aplicar un líquido que ingresa en discontinuidades abiertas a la superficie. Luego de retirar el excedente, un revelador permite visualizar las indicaciones para su evaluación.",
+    detects: ["Fisuras abiertas a la superficie.", "Porosidades abiertas a la superficie.", "Otras discontinuidades superficiales en soldaduras y componentes."],
+    uses: ["Componentes mecánicos.", "Soldaduras de distintas geometrías.", "Materiales no porosos, como acero al carbono, acero inoxidable y aluminio."],
+    secondary: [{ title: "Técnicas disponibles", items: ["Fluorescente (Tipo I): métodos A, B, C y D.", "Visible (Tipo II): métodos A y C."] }],
   },
   {
     id: "particulas",
     icon: "magnetic",
     title: "Partículas magnetizables",
-    what: "Se magnetiza la pieza y se aplican partículas ferromagnéticas. Ante una discontinuidad se produce una fuga de flujo que atrae y concentra las partículas, dibujando su contorno.",
-    detects: ["Fisuras superficiales", "Discontinuidades subsuperficiales cercanas a la superficie", "Defectos de soldadura"],
-    uses: ["Acero ferromagnético", "Ejes, engranajes y forjados", "Componentes de izaje"],
+    what: "Se induce un campo magnético en una pieza de material ferromagnético. Las partículas aplicadas sobre su superficie se acumulan en los campos de fuga producidos por las discontinuidades, permitiendo visualizar su presencia.",
+    detects: ["Fisuras superficiales.", "Discontinuidades subsuperficiales cercanas a la superficie.", "Discontinuidades en soldaduras de materiales ferromagnéticos."],
+    uses: ["Componentes mecánicos, como ejes, engranajes, cigüeñales y bielas.", "Soldaduras de materiales ferromagnéticos.", "Elementos de izaje, como ganchos, grilletes y pernos."],
+    secondary: [{ title: "Técnicas disponibles", items: ["Métodos de inspección: partículas visibles y fluorescentes.", "Técnicas de magnetización: yugo, pasaje de corriente, bobina y conductor central."] }],
   },
   {
     id: "visual",
     icon: "visual",
     title: "Inspección visual",
-    what: "Examen directo de la superficie, o asistido con lupas, boroscopios y calibres, según criterios de aceptación de las normas aplicables. Suele ser el primer paso de cualquier inspección.",
-    detects: ["Socavaduras y desalineaciones", "Grietas y salpicaduras visibles", "Corrosión y deformaciones"],
-    uses: ["Antes, durante y después de soldar", "Tanques, estructuras y equipos", "Verificación previa a otros ensayos"],
-    photo: probe,
+    what: "Permite evaluar la condición visible de superficies y soldaduras mediante observación directa o indirecta, incluyendo técnicas de boroscopía. Las indicaciones se comparan con los criterios de aceptación de las normas y especificaciones aplicables.",
+    detects: ["Fisuras y discontinuidades visibles.", "Socavaduras, desalineaciones e irregularidades en soldaduras.", "Corrosión, deformaciones y otras alteraciones superficiales visibles."],
+    uses: ["Soldaduras sanitarias en la industria alimenticia.", "Soldaduras en las industrias petroquímica y naval."],
+    secondary: [
+      { title: "Modalidades", items: ["Inspección visual directa.", "Inspección visual indirecta mediante boroscopía."] },
+      { title: "Certificación", text: "Inspecciones de soldadura realizadas por inspectores certificados según IRAM IAS U500-169." },
+    ],
   },
 ];
 
@@ -86,9 +89,6 @@ function TechAccordion({ items }: { items: Technique[] }) {
             </h3>
             <div className="acc-panel" id={`${tech.id}-panel`} role="region" aria-labelledby={`${tech.id}-trigger`} aria-hidden={!isOpen} inert={!isOpen}>
               <div className="acc-panel-inner">
-                {tech.photo && <div className="acc-photo">
-                  <img src={tech.photo} alt="" loading="lazy" />
-                </div>}
                 <div className="acc-text">
                   <div className="tech-cell">
                     <h4>Qué es</h4>
@@ -112,6 +112,14 @@ function TechAccordion({ items }: { items: Technique[] }) {
                       </ul>
                     </div>
                   </div>
+                  {tech.secondary && <div className="acc-secondary">
+                    {tech.secondary.map(block => (
+                      <div className="tech-cell" key={block.title}>
+                        <h4>{block.title}</h4>
+                        {block.items ? <ul>{block.items.map(item => <li key={item}>{item}</li>)}</ul> : <p>{block.text}</p>}
+                      </div>
+                    ))}
+                  </div>}
                 </div>
               </div>
             </div>
@@ -136,8 +144,17 @@ export default function NdtPage({ onConsult }: { onConsult: () => void }) {
     ".ndt-parallax",
   );
 
+  // Local section links must not replace the hash used by the service router.
+  const navigateSection = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const target = document.getElementById(event.currentTarget.hash.slice(1));
+    if (!target) return;
+    event.preventDefault();
+    target.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+  };
+
   return (
-    <main className="ndt-page">
+    <main className="ndt-page ndt-detail-page">
       <section className="ndt-hero dark-section">
         <Header />
         <div className="page-width">
@@ -149,15 +166,14 @@ export default function NdtPage({ onConsult }: { onConsult: () => void }) {
         </div>
         <div className="page-width ndt-hero-grid">
           <div className="copy ndt-copy">
-            <p className="eyebrow ruled">Nuestras soluciones</p>
             <h1>
               Ensayos no <em>destructivos</em>
             </h1>
             <p className="lead">
               Evaluamos materiales, piezas y soldaduras para detectar discontinuidades sin alterar su integridad.
             </p>
-            <a className="btn btn-light" href="#volumetricos">
-              Ver los ensayos
+            <a className="btn btn-light" href="#introduccion" onClick={navigateSection}>
+              Explorar métodos ↓
             </a>
           </div>
           <div className="ndt-hero-image">
@@ -166,41 +182,37 @@ export default function NdtPage({ onConsult }: { onConsult: () => void }) {
         </div>
       </section>
 
-      <section className="light-section ndt-intro">
+      <section className="light-section ndt-intro" id="introduccion">
         <div className="page-width split">
           <div className="copy">
-            <p className="eyebrow red">Introducción</p>
+            <p className="eyebrow red">INTRODUCCIÓN</p>
             <h2>
-              Mirar adentro,
-              <br />
-              sin <em>dañar.</em>
+              Por dentro y por fuera.
             </h2>
             <p className="lead">
-              Los ensayos no destructivos (END) permiten evaluar el estado de un material o componente sin alterar su
-              uso futuro. Según dónde pueda estar la discontinuidad, se aplican técnicas volumétricas, que revisan el
-              interior de la pieza, o superficiales, que revisan su superficie.
+              Los ensayos no destructivos (END) permiten evaluar materiales y componentes sin comprometer su integridad. Según la ubicación de las discontinuidades, se utilizan métodos volumétricos para examinar el interior o métodos superficiales para evaluar la superficie y las zonas próximas a ella.
             </p>
             <div className="ndt-jump">
-              <a className="btn btn-dark" href="#volumetricos">
+              <a className="btn btn-dark" href="#volumetricos" onClick={navigateSection}>
                 Ensayos volumétricos
               </a>
-              <a className="btn btn-dark" href="#superficiales">
+              <a className="btn btn-dark" href="#superficiales" onClick={navigateSection}>
                 Ensayos superficiales
               </a>
             </div>
           </div>
           <ul className="ndt-facts">
             <li>
-              <strong>Sin alterar la pieza</strong>
-              <span>La inspección no modifica sus propiedades ni su servicio posterior.</span>
+              <strong>SIN ALTERAR LA PIEZA</strong>
+              <span>La inspección permite evaluar el componente sin dañar sus propiedades ni comprometer su uso posterior.</span>
             </li>
             <li>
-              <strong>Dentro y fuera</strong>
-              <span>Técnicas para el interior del material y para su superficie.</span>
+              <strong>DETECCIÓN TEMPRANA</strong>
+              <span>Permite identificar discontinuidades durante la fabricación o en servicio, contribuyendo a prevenir fallas.</span>
             </li>
             <li>
-              <strong>Personal calificado</strong>
-              <span>Nivel 3 certificado según IRAM NM-ISO 9712.</span>
+              <strong>PERSONAL CALIFICADO</strong>
+              <span>Personal certificado Nivel 3 según IRAM NM-ISO 9712.</span>
             </li>
           </ul>
         </div>
@@ -211,11 +223,11 @@ export default function NdtPage({ onConsult }: { onConsult: () => void }) {
         <div className="page-width">
           <div className="acc-layout">
           <div className="ndt-block-head">
-            <p className="eyebrow red">01 — Ensayos volumétricos</p>
+            <p className="eyebrow red">01 — ENSAYOS VOLUMÉTRICOS</p>
             <h2>
               Lo que ocurre <em>dentro</em> del material.
             </h2>
-            <p className="lead">Técnicas que atraviesan la pieza para revelar discontinuidades internas.</p>
+            <p className="lead">Técnicas que permiten examinar el interior de materiales y componentes para identificar discontinuidades sin dañarlos.</p>
           </div>
             <TechAccordion items={volumetric} />
           </div>
@@ -226,11 +238,11 @@ export default function NdtPage({ onConsult }: { onConsult: () => void }) {
         <div className="page-width">
           <div className="acc-layout">
           <div className="ndt-block-head">
-            <p className="eyebrow red">02 — Ensayos superficiales</p>
+            <p className="eyebrow red">02 — ENSAYOS SUPERFICIALES</p>
             <h2>
               Lo que se esconde en la <em>superficie.</em>
             </h2>
-            <p className="lead">Técnicas que detectan discontinuidades abiertas o cercanas a la superficie.</p>
+            <p className="lead">Técnicas que permiten identificar discontinuidades en la superficie de los materiales y, según el método, también en zonas próximas a ella.</p>
           </div>
             <TechAccordion items={superficial} />
           </div>

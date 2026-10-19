@@ -1,0 +1,55 @@
+/* Only the Ensayos no destructivos page; shared service layouts stay intact. */
+.ndt-detail-page {
+  --ndt-anchor-offset: 112px;
+}
+.ndt-detail-page .ndt-hero {
+  min-height: 0;
+  padding-bottom: 44px;
+}
+.ndt-detail-page .ndt-hero-grid {
+  padding-top: 28px;
+  gap: 40px;
+}
+.ndt-detail-page .ndt-copy h1 {
+  font-size: clamp(44px, 4.2vw, 64px);
+  margin: 12px 0 18px;
+}
+.ndt-detail-page .ndt-copy .lead { margin-bottom: 22px; }
+.ndt-detail-page .ndt-hero-image {
+  justify-self: end;
+  width: min(100%, 430px);
+  height: auto;
+  aspect-ratio: 10 / 7;
+}
+.ndt-detail-page .ndt-intro { padding-block: 56px; }
+.ndt-detail-page .ndt-facts li { padding-block: 22px; }
+.ndt-detail-page .ndt-jump { margin-top: 26px; }
+.ndt-detail-page .ndt-jump .btn { margin-top: 0; }
+.ndt-detail-page :is(#introduccion, #volumetricos, #superficiales) {
+  scroll-margin-top: var(--ndt-anchor-offset);
+}
+.ndt-detail-page .acc-text { gap: 22px; }
+.ndt-detail-page .acc-item.is-open .acc-panel-inner { padding-bottom: 28px; }
+.ndt-detail-page .acc-secondary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 28px;
+}
+.ndt-detail-page .acc-secondary > :only-child { grid-column: 1 / -1; }
+@media (max-width: 900px) {
+  .ndt-detail-page { --ndt-anchor-offset: 96px; }
+  .ndt-detail-page .ndt-hero { padding-bottom: 32px; }
+  .ndt-detail-page .ndt-hero-grid { padding-top: 20px; gap: 24px; }
+  .ndt-detail-page .ndt-hero-image {
+    justify-self: start;
+    width: min(100%, 420px);
+    aspect-ratio: 1.9;
+  }
+  .ndt-detail-page .ndt-intro { padding-block: 52px; }
+  .ndt-detail-page .ndt-facts li { padding-block: 20px; }
+}
+@media (max-width: 560px) {
+  .ndt-detail-page .ndt-hero-image { aspect-ratio: 1.6; }
+  .ndt-detail-page .acc-cols,
+  .ndt-detail-page .acc-secondary { grid-template-columns: minmax(0, 1fr); }
+}

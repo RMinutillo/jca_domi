@@ -2,6 +2,7 @@
 @import "tailwindcss";
 @import "../../dist/typography.css";
 @import "./home-motion.css";
+@import "./ndt-detail.css";
 
 :root {
   --red: #ef1825;

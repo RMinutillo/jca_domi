@@ -284,10 +284,7 @@ export function Home({ topic, setTopic, embedded = false }: { topic: string; set
                 <a
                   className="solution-item"
                   key={solution.title}
-                  href={"page" in solution ? solution.page : "#contacto"}
-                  onClick={() => {
-                    if (!("page" in solution)) setTopic(solution.title);
-                  }}
+                  href={solution.page}
                 >
                   <span>
                     <b>{solution.title}</b>
