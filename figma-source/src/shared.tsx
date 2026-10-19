@@ -96,6 +96,7 @@ export function BrandLogo({ menu = false }: { menu?: boolean }) {
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLElement>(null);
   const internal = parseRoute() !== null && parseRoute() !== "/";
   const close = () => setMenuOpen(false);
   return (
@@ -103,19 +104,7 @@ export function Header() {
       <a className="brand" href={internal ? "/#inicio" : "#/"} aria-label="JCA y Asociados, inicio" onClick={close}>
         <BrandLogo menu />
       </a>
-      <button
-        ref={menuRef}
-        className="menu-button"
-        onClick={() => setMenuOpen((current) => !current)}
-        aria-label="Abrir menú"
-        aria-expanded={menuOpen}
-        aria-controls="page-navigation"
-        onKeyDown={(event) => { if (event.key === "Escape") close(); }}
-      >
-        <i />
-        <i />
-      </button>
-      <nav id="page-navigation" className={menuOpen ? "nav nav-open" : "nav"} aria-label="Navegación principal" onKeyDown={(event) => { if (event.key === "Escape") { close(); menuRef.current?.focus(); } }}>
+      <nav ref={navRef} id="page-navigation" className={menuOpen ? "nav nav-open" : "nav"} aria-label="Navegación principal" onKeyDown={(event) => { if (event.key === "Escape") { close(); menuRef.current?.focus(); } }}>
         <a href={internal ? "/#jca" : "#jca"} onClick={close}>
           JCA
         </a>
@@ -129,6 +118,22 @@ export function Header() {
       <a className="btn btn-red desktop-contact" href={internal ? "/#contacto" : "#contacto"}>
         Contactanos
       </a>
+      <button
+        ref={menuRef}
+        className="menu-button"
+        onClick={(event) => {
+          const open = !menuOpen;
+          setMenuOpen(open);
+          if (open && event.detail === 0) requestAnimationFrame(() => navRef.current?.querySelector<HTMLAnchorElement>("a")?.focus());
+        }}
+        aria-label="Abrir menú"
+        aria-expanded={menuOpen}
+        aria-controls="page-navigation"
+        onKeyDown={(event) => { if (event.key === "Escape") close(); }}
+      >
+        <i />
+        <i />
+      </button>
     </header>
   );
 }

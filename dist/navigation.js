@@ -2,7 +2,7 @@ const header=document.querySelector('.header');
 const menu=header.querySelector('.menu-button');
 const nav=header.querySelector('nav');
 function closeMenu(){nav.classList.remove('nav-open');menu.setAttribute('aria-expanded','false');}
-menu.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));nav.classList.toggle('nav-open',open);});
+menu.addEventListener('click',event=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));nav.classList.toggle('nav-open',open);if(open&&event.detail===0)requestAnimationFrame(()=>nav.querySelector('a')?.focus());});
 header.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMenu();menu.focus();}});
 document.addEventListener('click',event=>{if(!header.contains(event.target))closeMenu();});
 nav.addEventListener('click',event=>{const link=event.target.closest('a');if(!link)return;nav.querySelectorAll('a').forEach(a=>a.removeAttribute('aria-current'));link.setAttribute('aria-current','location');closeMenu();});
